@@ -1,0 +1,1221 @@
+{
+  "_info": "Quellenliste. bias: left | lean_left | center | lean_right | right. reliability: 0-100. Die Einordnungen sind Näherungswerte, angelehnt an öffentlich verfügbare Medienbewertungen (u. a. AllSides, Media Bias/Fact Check, Ad Fontes Media) und können frei angepasst werden.",
+  "sources": [
+    {
+      "id": "tagesschau",
+      "name": "tagesschau.de",
+      "homepage": "https://www.tagesschau.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 90,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.tagesschau.de/index~rss2.xml",
+          "category": null
+        },
+        {
+          "url": "https://www.tagesschau.de/inland/index~rss2.xml",
+          "category": "politik"
+        },
+        {
+          "url": "https://www.tagesschau.de/ausland/index~rss2.xml",
+          "category": "international"
+        },
+        {
+          "url": "https://www.tagesschau.de/wirtschaft/index~rss2.xml",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://www.tagesschau.de/wissen/index~rss2.xml",
+          "category": "wissenschaft"
+        }
+      ]
+    },
+    {
+      "id": "zdfheute",
+      "name": "ZDFheute",
+      "homepage": "https://www.zdf.de/nachrichten",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 88,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.zdf.de/rss/zdf/nachrichten",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "dw-de",
+      "name": "Deutsche Welle (DE)",
+      "homepage": "https://www.dw.com/de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 88,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://rss.dw.com/rdf/rss-de-all",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "spiegel",
+      "name": "DER SPIEGEL",
+      "homepage": "https://www.spiegel.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_left",
+      "reliability": 85,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.spiegel.de/schlagzeilen/index.rss",
+          "category": null
+        },
+        {
+          "url": "https://www.spiegel.de/politik/index.rss",
+          "category": "politik"
+        },
+        {
+          "url": "https://www.spiegel.de/ausland/index.rss",
+          "category": "international"
+        },
+        {
+          "url": "https://www.spiegel.de/wirtschaft/index.rss",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://www.spiegel.de/wissenschaft/index.rss",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://www.spiegel.de/netzwelt/index.rss",
+          "category": "technologie"
+        },
+        {
+          "url": "https://www.spiegel.de/gesundheit/index.rss",
+          "category": "gesundheit"
+        },
+        {
+          "url": "https://www.spiegel.de/sport/index.rss",
+          "category": "sport"
+        },
+        {
+          "url": "https://www.spiegel.de/kultur/index.rss",
+          "category": "kultur"
+        }
+      ]
+    },
+    {
+      "id": "zeit",
+      "name": "ZEIT ONLINE",
+      "homepage": "https://www.zeit.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_left",
+      "reliability": 86,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://newsfeed.zeit.de/index",
+          "category": null
+        },
+        {
+          "url": "https://newsfeed.zeit.de/politik/index",
+          "category": "politik"
+        },
+        {
+          "url": "https://newsfeed.zeit.de/wirtschaft/index",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://newsfeed.zeit.de/wissen/index",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://newsfeed.zeit.de/digital/index",
+          "category": "technologie"
+        },
+        {
+          "url": "https://newsfeed.zeit.de/sport/index",
+          "category": "sport"
+        },
+        {
+          "url": "https://newsfeed.zeit.de/kultur/index",
+          "category": "kultur"
+        }
+      ]
+    },
+    {
+      "id": "sz",
+      "name": "Süddeutsche Zeitung",
+      "homepage": "https://www.sueddeutsche.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_left",
+      "reliability": 85,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://rss.sueddeutsche.de/rss/Topthemen",
+          "category": null
+        },
+        {
+          "url": "https://rss.sueddeutsche.de/rss/Politik",
+          "category": "politik"
+        },
+        {
+          "url": "https://rss.sueddeutsche.de/rss/Wirtschaft",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://rss.sueddeutsche.de/rss/Wissen",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://rss.sueddeutsche.de/rss/Digital",
+          "category": "technologie"
+        },
+        {
+          "url": "https://rss.sueddeutsche.de/rss/Sport",
+          "category": "sport"
+        },
+        {
+          "url": "https://rss.sueddeutsche.de/rss/Kultur",
+          "category": "kultur"
+        }
+      ]
+    },
+    {
+      "id": "faz",
+      "name": "Frankfurter Allgemeine",
+      "homepage": "https://www.faz.net",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_right",
+      "reliability": 87,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.faz.net/rss/aktuell/",
+          "category": null
+        },
+        {
+          "url": "https://www.faz.net/rss/aktuell/politik/",
+          "category": "politik"
+        },
+        {
+          "url": "https://www.faz.net/rss/aktuell/wirtschaft/",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://www.faz.net/rss/aktuell/wissen/",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://www.faz.net/rss/aktuell/feuilleton/",
+          "category": "kultur"
+        },
+        {
+          "url": "https://www.faz.net/rss/aktuell/sport/",
+          "category": "sport"
+        }
+      ]
+    },
+    {
+      "id": "welt",
+      "name": "WELT",
+      "homepage": "https://www.welt.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_right",
+      "reliability": 78,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.welt.de/feeds/latest.rss",
+          "category": null
+        },
+        {
+          "url": "https://www.welt.de/feeds/section/politik.rss",
+          "category": "politik"
+        },
+        {
+          "url": "https://www.welt.de/feeds/section/wirtschaft.rss",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://www.welt.de/feeds/section/wissenschaft.rss",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://www.welt.de/feeds/section/sport.rss",
+          "category": "sport"
+        }
+      ]
+    },
+    {
+      "id": "taz",
+      "name": "taz",
+      "homepage": "https://taz.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "left",
+      "reliability": 76,
+      "ownership": "cooperative",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://taz.de/!p4608;rss/",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "handelsblatt",
+      "name": "Handelsblatt",
+      "homepage": "https://www.handelsblatt.com",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 85,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.handelsblatt.com/contentexport/feed/schlagzeilen",
+          "category": "wirtschaft"
+        }
+      ]
+    },
+    {
+      "id": "ntv",
+      "name": "n-tv",
+      "homepage": "https://www.n-tv.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 78,
+      "ownership": "private",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.n-tv.de/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "focus",
+      "name": "FOCUS online",
+      "homepage": "https://www.focus.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_right",
+      "reliability": 68,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://rss.focus.de/fol/XML/rss_folnews.xml",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "stern",
+      "name": "stern",
+      "homepage": "https://www.stern.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_left",
+      "reliability": 74,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.stern.de/feed/standard/alle-nachrichten/",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "bild",
+      "name": "BILD",
+      "homepage": "https://www.bild.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "right",
+      "reliability": 45,
+      "ownership": "private",
+      "type": "tabloid",
+      "note": "Boulevardzeitung – häufig zugespitzte Darstellung.",
+      "feeds": [
+        {
+          "url": "https://www.bild.de/feed/alles.xml",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "heise",
+      "name": "heise online",
+      "homepage": "https://www.heise.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 88,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.heise.de/rss/heise-atom.xml",
+          "category": "technologie"
+        }
+      ]
+    },
+    {
+      "id": "t3n",
+      "name": "t3n",
+      "homepage": "https://t3n.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 78,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://t3n.de/rss.xml",
+          "category": "technologie"
+        }
+      ]
+    },
+    {
+      "id": "spektrum",
+      "name": "Spektrum der Wissenschaft",
+      "homepage": "https://www.spektrum.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 92,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406",
+          "category": "wissenschaft"
+        }
+      ]
+    },
+    {
+      "id": "aerzteblatt",
+      "name": "Deutsches Ärzteblatt",
+      "homepage": "https://www.aerzteblatt.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 90,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.aerzteblatt.de/rss/news.asp",
+          "category": "gesundheit"
+        }
+      ]
+    },
+    {
+      "id": "kicker",
+      "name": "kicker",
+      "homepage": "https://www.kicker.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://newsfeed.kicker.de/news/aktuell",
+          "category": "sport"
+        }
+      ]
+    },
+    {
+      "id": "sportschau",
+      "name": "Sportschau",
+      "homepage": "https://www.sportschau.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "center",
+      "reliability": 88,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.sportschau.de/index~rss2.xml",
+          "category": "sport"
+        }
+      ]
+    },
+    {
+      "id": "orf",
+      "name": "ORF.at",
+      "homepage": "https://orf.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "center",
+      "reliability": 88,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://rss.orf.at/news.xml",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "derstandard",
+      "name": "DER STANDARD",
+      "homepage": "https://www.derstandard.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "lean_left",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.derstandard.at/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "diepresse",
+      "name": "Die Presse",
+      "homepage": "https://www.diepresse.com",
+      "country": "AT",
+      "language": "de",
+      "bias": "lean_right",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.diepresse.com/rss/",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "srf",
+      "name": "SRF News",
+      "homepage": "https://www.srf.ch/news",
+      "country": "CH",
+      "language": "de",
+      "bias": "center",
+      "reliability": 90,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.srf.ch/news/bnf/rss/1646",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "nzz",
+      "name": "Neue Zürcher Zeitung",
+      "homepage": "https://www.nzz.ch",
+      "country": "CH",
+      "language": "de",
+      "bias": "lean_right",
+      "reliability": 88,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.nzz.ch/recent.rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "bbc",
+      "name": "BBC News",
+      "homepage": "https://www.bbc.com/news",
+      "country": "GB",
+      "language": "en",
+      "bias": "center",
+      "reliability": 90,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://feeds.bbci.co.uk/news/rss.xml",
+          "category": null
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+          "category": "international"
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/news/politics/rss.xml",
+          "category": "politik"
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+          "category": "technologie"
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/news/health/rss.xml",
+          "category": "gesundheit"
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+          "category": "kultur"
+        },
+        {
+          "url": "https://feeds.bbci.co.uk/sport/rss.xml",
+          "category": "sport"
+        }
+      ]
+    },
+    {
+      "id": "guardian",
+      "name": "The Guardian",
+      "homepage": "https://www.theguardian.com",
+      "country": "GB",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 83,
+      "ownership": "trust",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.theguardian.com/world/rss",
+          "category": "international"
+        },
+        {
+          "url": "https://www.theguardian.com/uk-news/rss",
+          "category": null
+        },
+        {
+          "url": "https://www.theguardian.com/us-news/rss",
+          "category": null
+        },
+        {
+          "url": "https://www.theguardian.com/business/rss",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://www.theguardian.com/technology/rss",
+          "category": "technologie"
+        },
+        {
+          "url": "https://www.theguardian.com/science/rss",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://www.theguardian.com/environment/rss",
+          "category": "klima"
+        },
+        {
+          "url": "https://www.theguardian.com/sport/rss",
+          "category": "sport"
+        },
+        {
+          "url": "https://www.theguardian.com/culture/rss",
+          "category": "kultur"
+        }
+      ]
+    },
+    {
+      "id": "nyt",
+      "name": "The New York Times",
+      "homepage": "https://www.nytimes.com",
+      "country": "US",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 86,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+          "category": null
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+          "category": "international"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml",
+          "category": "politik"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+          "category": "technologie"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml",
+          "category": "gesundheit"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Climate.xml",
+          "category": "klima"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml",
+          "category": "sport"
+        },
+        {
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml",
+          "category": "kultur"
+        }
+      ]
+    },
+    {
+      "id": "npr",
+      "name": "NPR",
+      "homepage": "https://www.npr.org",
+      "country": "US",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 88,
+      "ownership": "nonprofit",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://feeds.npr.org/1001/rss.xml",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "thehill",
+      "name": "The Hill",
+      "homepage": "https://thehill.com",
+      "country": "US",
+      "language": "en",
+      "bias": "center",
+      "reliability": 78,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://thehill.com/feed/",
+          "category": "politik"
+        }
+      ]
+    },
+    {
+      "id": "politico",
+      "name": "POLITICO",
+      "homepage": "https://www.politico.com",
+      "country": "US",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://rss.politico.com/politics-news.xml",
+          "category": "politik"
+        }
+      ]
+    },
+    {
+      "id": "politico-eu",
+      "name": "POLITICO Europe",
+      "homepage": "https://www.politico.eu",
+      "country": "BE",
+      "language": "en",
+      "bias": "center",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.politico.eu/feed/",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "cnbc",
+      "name": "CNBC",
+      "homepage": "https://www.cnbc.com",
+      "country": "US",
+      "language": "en",
+      "bias": "center",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+          "category": "wirtschaft"
+        }
+      ]
+    },
+    {
+      "id": "foxnews",
+      "name": "Fox News",
+      "homepage": "https://www.foxnews.com",
+      "country": "US",
+      "language": "en",
+      "bias": "right",
+      "reliability": 55,
+      "ownership": "private",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://moxie.foxnews.com/google-publisher/latest.xml",
+          "category": null
+        },
+        {
+          "url": "https://moxie.foxnews.com/google-publisher/world.xml",
+          "category": "international"
+        },
+        {
+          "url": "https://moxie.foxnews.com/google-publisher/politics.xml",
+          "category": "politik"
+        }
+      ]
+    },
+    {
+      "id": "nypost",
+      "name": "New York Post",
+      "homepage": "https://nypost.com",
+      "country": "US",
+      "language": "en",
+      "bias": "right",
+      "reliability": 55,
+      "ownership": "private",
+      "type": "tabloid",
+      "note": "Boulevardzeitung – häufig zugespitzte Darstellung.",
+      "feeds": [
+        {
+          "url": "https://nypost.com/feed/",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "telegraph",
+      "name": "The Telegraph",
+      "homepage": "https://www.telegraph.co.uk",
+      "country": "GB",
+      "language": "en",
+      "bias": "lean_right",
+      "reliability": 76,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.telegraph.co.uk/news/rss.xml",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "dailymail",
+      "name": "Daily Mail",
+      "homepage": "https://www.dailymail.co.uk",
+      "country": "GB",
+      "language": "en",
+      "bias": "right",
+      "reliability": 42,
+      "ownership": "private",
+      "type": "tabloid",
+      "note": "Boulevardzeitung – häufig zugespitzte Darstellung.",
+      "feeds": [
+        {
+          "url": "https://www.dailymail.co.uk/news/index.rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "independent",
+      "name": "The Independent",
+      "homepage": "https://www.independent.co.uk",
+      "country": "GB",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 76,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.independent.co.uk/news/world/rss",
+          "category": "international"
+        }
+      ]
+    },
+    {
+      "id": "skynews",
+      "name": "Sky News",
+      "homepage": "https://news.sky.com",
+      "country": "GB",
+      "language": "en",
+      "bias": "center",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://feeds.skynews.com/feeds/rss/home.xml",
+          "category": null
+        },
+        {
+          "url": "https://feeds.skynews.com/feeds/rss/world.xml",
+          "category": "international"
+        }
+      ]
+    },
+    {
+      "id": "dw-en",
+      "name": "DW (English)",
+      "homepage": "https://www.dw.com/en",
+      "country": "DE",
+      "language": "en",
+      "bias": "center",
+      "reliability": 88,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://rss.dw.com/rdf/rss-en-all",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "aljazeera",
+      "name": "Al Jazeera",
+      "homepage": "https://www.aljazeera.com",
+      "country": "QA",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 74,
+      "ownership": "state",
+      "type": "broadcaster",
+      "note": "Staatlich (Katar) finanziert.",
+      "feeds": [
+        {
+          "url": "https://www.aljazeera.com/xml/rss/all.xml",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "france24",
+      "name": "France 24",
+      "homepage": "https://www.france24.com/en",
+      "country": "FR",
+      "language": "en",
+      "bias": "center",
+      "reliability": 84,
+      "ownership": "public",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.france24.com/en/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "euronews",
+      "name": "Euronews",
+      "homepage": "https://www.euronews.com",
+      "country": "FR",
+      "language": "en",
+      "bias": "center",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.euronews.com/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "arstechnica",
+      "name": "Ars Technica",
+      "homepage": "https://arstechnica.com",
+      "country": "US",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 88,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://feeds.arstechnica.com/arstechnica/index",
+          "category": "technologie"
+        }
+      ]
+    },
+    {
+      "id": "theverge",
+      "name": "The Verge",
+      "homepage": "https://www.theverge.com",
+      "country": "US",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.theverge.com/rss/index.xml",
+          "category": "technologie"
+        }
+      ]
+    },
+    {
+      "id": "techcrunch",
+      "name": "TechCrunch",
+      "homepage": "https://techcrunch.com",
+      "country": "US",
+      "language": "en",
+      "bias": "center",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://techcrunch.com/feed/",
+          "category": "technologie"
+        }
+      ]
+    },
+    {
+      "id": "wired",
+      "name": "WIRED",
+      "homepage": "https://www.wired.com",
+      "country": "US",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.wired.com/feed/rss",
+          "category": "technologie"
+        }
+      ]
+    },
+    {
+      "id": "nature",
+      "name": "Nature",
+      "homepage": "https://www.nature.com",
+      "country": "GB",
+      "language": "en",
+      "bias": "center",
+      "reliability": 96,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.nature.com/nature.rss",
+          "category": "wissenschaft"
+        }
+      ]
+    },
+    {
+      "id": "sciencedaily",
+      "name": "ScienceDaily",
+      "homepage": "https://www.sciencedaily.com",
+      "country": "US",
+      "language": "en",
+      "bias": "center",
+      "reliability": 86,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.sciencedaily.com/rss/top/science.xml",
+          "category": "wissenschaft"
+        }
+      ]
+    },
+    {
+      "id": "newscientist",
+      "name": "New Scientist",
+      "homepage": "https://www.newscientist.com",
+      "country": "GB",
+      "language": "en",
+      "bias": "center",
+      "reliability": 86,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.newscientist.com/feed/home/",
+          "category": "wissenschaft"
+        }
+      ]
+    },
+    {
+      "id": "statnews",
+      "name": "STAT",
+      "homepage": "https://www.statnews.com",
+      "country": "US",
+      "language": "en",
+      "bias": "center",
+      "reliability": 88,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.statnews.com/feed/",
+          "category": "gesundheit"
+        }
+      ]
+    },
+    {
+      "id": "carbonbrief",
+      "name": "Carbon Brief",
+      "homepage": "https://www.carbonbrief.org",
+      "country": "GB",
+      "language": "en",
+      "bias": "center",
+      "reliability": 90,
+      "ownership": "nonprofit",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.carbonbrief.org/feed/",
+          "category": "klima"
+        }
+      ]
+    },
+    {
+      "id": "espn",
+      "name": "ESPN",
+      "homepage": "https://www.espn.com",
+      "country": "US",
+      "language": "en",
+      "bias": "center",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.espn.com/espn/rss/news",
+          "category": "sport"
+        }
+      ]
+    },
+    {
+      "id": "variety",
+      "name": "Variety",
+      "homepage": "https://variety.com",
+      "country": "US",
+      "language": "en",
+      "bias": "center",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "specialist",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://variety.com/feed/",
+          "category": "kultur"
+        }
+      ]
+    }
+  ]
+}
