@@ -23,11 +23,10 @@ from .db import Database, iso, utcnow
 log = logging.getLogger(__name__)
 
 # Je Richtung das bevorzugte Modell zuerst; schlägt das Laden fehl, wird das nächste verwendet.
-# Für Englisch → Deutsch liefert das größere "tc-big"-Modell deutlich natürlichere Überschriften.
+# Andere Modelle lassen sich über TRANSLATION_MODEL_DE_EN / TRANSLATION_MODEL_EN_DE einstellen.
 MODELS = {
-    ("de", "en"): [os.getenv("TRANSLATION_MODEL_DE_EN") or "Helsinki-NLP/opus-mt-de-en"],
-    ("en", "de"): [os.getenv("TRANSLATION_MODEL_EN_DE") or "Helsinki-NLP/opus-mt-tc-big-en-de",
-                   "Helsinki-NLP/opus-mt-en-de"],
+    ("de", "en"): [m for m in (os.getenv("TRANSLATION_MODEL_DE_EN"), "Helsinki-NLP/opus-mt-de-en") if m],
+    ("en", "de"): [m for m in (os.getenv("TRANSLATION_MODEL_EN_DE"), "Helsinki-NLP/opus-mt-en-de") if m],
 }
 ENGINE_LABEL = "OPUS-MT (Helsinki-NLP)"
 

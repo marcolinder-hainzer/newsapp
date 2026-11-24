@@ -35,7 +35,7 @@ jobs:
     timeout-minutes: 30
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     env:
       DATA_DIR: ${{ github.workspace }}/state
       HF_HOME: ${{ github.workspace }}/.hf-cache
@@ -123,8 +123,23 @@ jobs:
         with:
           path: frontend/dist
 
+      # GitHub findet ein gerade hochgeladenes Paket manchmal nicht sofort – daher kurz warten
+      # und bei einem Fehlschlag automatisch ein zweites Mal veröffentlichen.
+      - name: Kurz warten
+        run: sleep 15
+
       - name: Veröffentlichen
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Vor zweitem Versuch warten
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 45
+
+      - name: Veröffentlichen (zweiter Versuch)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v5
 
       - name: Bericht
