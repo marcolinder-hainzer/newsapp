@@ -86,10 +86,10 @@ RSS-Feeds ──► Abruf ──► Gruppierung zu Meldungen ──► Kennzahle
 4. **Zusammenfassungen** (`summarize.py`): Überschrift des zuverlässigsten Mediums, die zentralen Sätze
    aus den Teasern aller Quellen und die Schlagzeilen weiterer Medien.
 5. **Übersetzung** (`translate.py`): OPUS-MT de→en / en→de, mit Zwischenspeicher und Zeitbudget.
+6. **Briefings** (`digests.py`) und **Export** (`static_export.py`) als JSON für das Frontend.
 7. **Vorlesen** (`frontend/public/piper-worker.js`, `frontend/src/audio/natural.ts`): Piper im Browser –
    espeak-ng (WebAssembly) erzeugt die Lautschrift, onnxruntime-web das Stimmmodell. Der Workflow
    „Stimmen prüfen“ testet alle Stimmen in Chromium und WebKit (Safari).
-6. **Briefings** (`digests.py`) und **Export** (`static_export.py`) als JSON für das Frontend.
 
 ### Vertrauens-Score
 
