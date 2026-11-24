@@ -15,8 +15,7 @@ export interface Meta {
   generated_at?: string;
   categories: Category[];
   countries: string[];
-  llm: { enabled: boolean; model: string | null };
-  tts: { server: boolean; provider: string | null; label: string | null; voices: Record<Lang, Record<Voice, string>> | null };
+  translation: { enabled: boolean; engine: string | null };
   last_update: string | null;
   cycle_running: boolean;
   refresh_interval_minutes: number;
@@ -42,7 +41,7 @@ export interface StoryItem {
   bias: { left: number; center: number; right: number };
   blindspot: "left" | "right" | null;
   trust: { score: number; label: TrustLabel };
-  summary_status: "none" | "extractive" | "llm";
+  summary_status: "none" | "extractive";
   top_sources: { id: string; name: string }[];
 }
 
@@ -52,6 +51,9 @@ export interface SummaryPart {
   summary?: string;
   key_points?: string[];
   context?: string;
+  /** maschinell übersetzt (OPUS-MT) */
+  machine_translated?: boolean;
+  source_lang?: Lang;
 }
 
 export interface Source {
@@ -95,7 +97,7 @@ export interface TrustDetail {
 
 export interface StoryDetail extends Omit<StoryItem, "trust"> {
   summary: {
-    generated_by: "llm" | "extractive" | null;
+    generated_by: "extractive" | null;
     model: string | null;
     generated_at: string | null;
     de: SummaryPart;
@@ -104,7 +106,6 @@ export interface StoryDetail extends Omit<StoryItem, "trust"> {
   trust: TrustDetail;
   articles: Article[];
   speech: Bilingual<{ text: string; lang: Lang }>;
-  can_generate_summary: boolean;
 }
 
 export interface DigestContent {
@@ -117,7 +118,7 @@ export interface Digest {
   scope: string;
   title: Bilingual;
   generated_at: string;
-  generated_by: "llm" | "template";
+  generated_by: "template";
   content: Partial<Record<Lang, DigestContent>>;
   stories: StoryItem[];
   speech: Bilingual;

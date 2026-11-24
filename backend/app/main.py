@@ -1,4 +1,7 @@
-"""FastAPI-Anwendung: REST-API und Auslieferung des Web-Frontends."""
+"""FastAPI-Anwendung für den Betrieb auf dem eigenen Rechner (z. B. zur Entwicklung).
+
+Für die Veröffentlichung über GitHub Pages wird stattdessen app.static_export verwendet.
+"""
 
 from __future__ import annotations
 
@@ -15,19 +18,18 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import categories, digests, stories, summarize, views
+from . import categories, digests, stories, views
 from .config import Settings, settings as default_settings
 from .db import Database
-from .llm import LLMClient
 from .pipeline import Pipeline
-from .tts import TTSError, TTSService
+from .translate import Translator
 from .views import APP_NAME, APP_VERSION
 
 log = logging.getLogger(__name__)
 
 
 class RateLimiter:
-    """Einfaches gleitendes Fenster – schützt kostenpflichtige Aktionen vor Missbrauch."""
+    """Einfaches gleitendes Fenster – verhindert zu häufiges manuelles Aktualisieren."""
 
     def __init__(self, max_events: int, per_seconds: int):
         self.max_events = max_events
@@ -45,18 +47,14 @@ class RateLimiter:
             return True
 
 
-def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
-               transport: httpx.BaseTransport | None = None, tts_transport: httpx.BaseTransport | None = None,
-               start_scheduler: bool | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, translator: Translator | None = None,
+               transport: httpx.BaseTransport | None = None, start_scheduler: bool | None = None) -> FastAPI:
     settings = settings or default_settings
     settings.ensure_dirs()
     db = Database(settings.db_path)
-    llm = llm or LLMClient(settings)
-    tts = TTSService(settings, transport=tts_transport)
-    pipeline = Pipeline(settings, db, llm, tts, transport=transport)
+    translator = translator or Translator(db, enabled=settings.translation_enabled)
+    pipeline = Pipeline(settings, db, translator, transport=transport)
     run_scheduler = settings.scheduler_enabled if start_scheduler is None else start_scheduler
-
-    summary_limiter = RateLimiter(max_events=40, per_seconds=3600)
     refresh_limiter = RateLimiter(max_events=1, per_seconds=120)
 
     @asynccontextmanager
@@ -71,19 +69,15 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
     app.state.settings = settings
     app.state.db = db
     app.state.pipeline = pipeline
-    app.state.llm = llm
-    app.state.tts = tts
+    app.state.translator = translator
 
-    # ------------------------------------------------------------------
-    # Allgemein
-    # ------------------------------------------------------------------
     @app.get("/api/health")
     def health():
         return {"status": "ok"}
 
     @app.get("/api/meta")
     def meta():
-        return views.meta_payload(db, pipeline.sources, llm, tts.info(), settings.refresh_interval_minutes,
+        return views.meta_payload(db, pipeline.sources, translator.info(), settings.refresh_interval_minutes,
                                   running=pipeline.running)
 
     @app.get("/api/status")
@@ -97,13 +91,9 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
             "last_error": db.get_meta("last_error"),
             "last_update": db.get_meta("last_update"),
             "cycle_running": pipeline.running,
-            "llm_usage": llm.usage,
             "feeds": feeds,
         }
 
-    # ------------------------------------------------------------------
-    # Meldungen
-    # ------------------------------------------------------------------
     @app.get("/api/stories")
     def list_stories(
         category: str | None = None,
@@ -129,38 +119,17 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
         return {"total": total, "offset": offset, "limit": limit,
                 "items": stories.serialize_many(db, rows, pipeline.sources)}
 
-    def _story_detail(story_id: int) -> dict:
-        story = stories.get_story(db, story_id)
-        if not story:
-            raise HTTPException(404, "Meldung nicht gefunden")
-        return views.story_detail_payload(db, story, pipeline.sources,
-                                          can_generate=llm.enabled and summarize.is_stale(story))
-
     @app.get("/api/stories/{story_id}")
     def story_detail(story_id: int):
-        return _story_detail(story_id)
-
-    @app.post("/api/stories/{story_id}/summarize")
-    def story_summarize(story_id: int):
         story = stories.get_story(db, story_id)
         if not story:
             raise HTTPException(404, "Meldung nicht gefunden")
-        if not llm.enabled:
-            raise HTTPException(409, "KI-Zusammenfassungen sind nicht konfiguriert (ANTHROPIC_API_KEY fehlt)")
-        if summarize.is_stale(story):
-            if not summary_limiter.allow():
-                raise HTTPException(429, "Zu viele Anfragen – bitte später erneut versuchen")
-            summarize.summarize_story(db, story_id, pipeline.sources, llm, settings, use_llm=True)
-            stories.recompute_stories(db, pipeline.sources, {story_id})
-        return _story_detail(story_id)
+        return views.story_detail_payload(db, story, pipeline.sources)
 
-    # ------------------------------------------------------------------
-    # Briefings
-    # ------------------------------------------------------------------
     def _digest_or_404(scope: str) -> dict:
         if scope not in digests.all_scopes():
             raise HTTPException(404, "Unbekannter Bereich")
-        return views.digest_payload(db, scope, pipeline.sources, llm)
+        return views.digest_payload(db, scope, pipeline.sources)
 
     @app.get("/api/digest")
     def digest(scope: str = "top:day"):
@@ -174,53 +143,10 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
             "categories": [_digest_or_404(f"category:{c}") for c in categories.SLUGS],
         }
 
-    # ------------------------------------------------------------------
-    # Quellen
-    # ------------------------------------------------------------------
     @app.get("/api/sources")
     def list_sources():
         return views.sources_payload(db, pipeline.sources)
 
-    # ------------------------------------------------------------------
-    # Sprachausgabe
-    # ------------------------------------------------------------------
-    def _audio(text: str, lang: str, voice: str):
-        if not tts.available:
-            raise HTTPException(404, "Keine Server-Sprachausgabe konfiguriert")
-        if not text.strip():
-            raise HTTPException(404, "Kein Text zum Vorlesen")
-        try:
-            path = tts.synthesize(text, lang, voice)
-        except TTSError as exc:
-            raise HTTPException(502, str(exc)) from exc
-        return FileResponse(path, media_type="audio/mpeg", headers={"Cache-Control": "public, max-age=86400"})
-
-    @app.get("/api/tts/story/{story_id}")
-    def tts_story(story_id: int, lang: str = "de", voice: str = "female"):
-        story = stories.get_story(db, story_id)
-        if not story:
-            raise HTTPException(404, "Meldung nicht gefunden")
-        text, actual_lang = stories.story_speech(story, lang if lang in ("de", "en") else "de")
-        return _audio(text, actual_lang, voice)
-
-    preview_texts = {
-        "de": "Guten Tag. Das ist eine Hörprobe für die Nachrichten von Weitblick.",
-        "en": "Hello. This is a voice preview for the Weitblick news.",
-    }
-
-    @app.get("/api/tts/preview")
-    def tts_preview(lang: str = "de", voice: str = "female"):
-        lang = lang if lang in preview_texts else "de"
-        return _audio(preview_texts[lang], lang, voice)
-
-    @app.get("/api/tts/digest")
-    def tts_digest(scope: str = "top:day", lang: str = "de", voice: str = "female"):
-        digest = _digest_or_404(scope)
-        return _audio(digest["speech"][lang if lang in ("de", "en") else "de"], lang, voice)
-
-    # ------------------------------------------------------------------
-    # Verwaltung
-    # ------------------------------------------------------------------
     @app.post("/api/admin/refresh")
     def refresh(x_admin_token: str | None = Header(None)):
         if settings.admin_token:
@@ -234,9 +160,7 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
             threading.Thread(target=pipeline.run_cycle, daemon=True).start()
         return {"status": "triggered"}
 
-    # ------------------------------------------------------------------
-    # Frontend (gebaute React-App)
-    # ------------------------------------------------------------------
+    # Gebautes Frontend ausliefern (falls vorhanden)
     dist = Path(os.getenv("FRONTEND_DIST", Path(__file__).resolve().parents[2] / "frontend" / "dist"))
     if dist.is_dir():
         if (dist / "assets").is_dir():
@@ -252,4 +176,3 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
             return FileResponse(dist / "index.html", headers={"Cache-Control": "no-cache"})
 
     return app
-

@@ -1,4 +1,4 @@
-import { Info, RefreshCw, X } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../api";
@@ -27,7 +27,6 @@ export function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadedAt, setLoadedAt] = useState<string | null>(null);
-  const [aiNoticeHidden, setAiNoticeHidden] = useState(() => localStorage.getItem("weitblick.aiNotice") === "hidden");
   const requestId = useRef(0);
 
   const query = { ...filters, category: slug };
@@ -79,17 +78,6 @@ export function HomePage() {
 
   return (
     <div className="page">
-      {meta && !meta.llm.enabled && !aiNoticeHidden && (
-        <div className="notice">
-          <Info size={16} aria-hidden="true" />
-          <span>{t.aiOff}</span>
-          <button className="icon-btn" aria-label={t.close} onClick={() => {
-            localStorage.setItem("weitblick.aiNotice", "hidden");
-            setAiNoticeHidden(true);
-          }}><X size={16} /></button>
-        </div>
-      )}
-
       {slug && category && (
         <h1 className="page-title"><CategoryIcon icon={category.icon} size={26} /> {categoryName(slug)}</h1>
       )}

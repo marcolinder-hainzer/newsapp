@@ -134,8 +134,6 @@ def feed_handler(request: httpx.Request) -> httpx.Response:
 
 @pytest.fixture
 def test_settings(tmp_path: Path, monkeypatch) -> Settings:
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
     monkeypatch.setenv("FRONTEND_DIST", str(tmp_path / "no-frontend"))
     sources_file = tmp_path / "sources.json"
     sources_file.write_text(json.dumps({"sources": SOURCES}), encoding="utf-8")
@@ -143,8 +141,7 @@ def test_settings(tmp_path: Path, monkeypatch) -> Settings:
     settings.data_dir = tmp_path / "data"
     settings.sources_file = sources_file
     settings.scheduler_enabled = False
-    settings.fetch_fulltext = False
-    settings.tts_provider = "browser"
+    settings.translation_enabled = False
     settings.ensure_dirs()
     return settings
 
@@ -152,3 +149,52 @@ def test_settings(tmp_path: Path, monkeypatch) -> Settings:
 @pytest.fixture
 def feed_transport() -> httpx.MockTransport:
     return httpx.MockTransport(feed_handler)
+
+
+class FakeTranslator:
+    """Simulierte Übersetzung für Tests: kennt ein paar feste Sätze, sonst wird markiert übersetzt."""
+
+    KNOWN = {
+        "Bundestag beschließt Reform der Bahnfinanzierung": "German parliament approves rail funding reform",
+        "Sturm Elara trifft Portugals Küste – Tausende ohne Strom":
+            "Storm Elara hits Portugal's coast leaving thousands without power",
+        "Der Bundestag hat die Reform der Bahnfinanzierung beschlossen.":
+            "The Bundestag has approved the reform of rail funding.",
+        "Künftig soll ein Infrastrukturfonds die Sanierung des Schienennetzes über zehn Jahre absichern.":
+            "In future, an infrastructure fund is to secure the renovation of the rail network over ten years.",
+        "Mit den Stimmen der Koalition hat der Bundestag die Bahnreform beschlossen.":
+            "With the votes of the coalition, the Bundestag passed the rail reform.",
+        "Ein Infrastrukturfonds soll die Sanierung des maroden Schienennetzes finanzieren.":
+            "An infrastructure fund is to finance the renovation of the dilapidated rail network.",
+        "Kritiker bemängeln, dass der Infrastrukturfonds die Sanierung des Schienennetzes nicht dauerhaft absichere.":
+            "Critics complain that the infrastructure fund does not permanently secure the renovation of the rail network.",
+        "Die Opposition kritisiert die Finanzierung.": "The opposition criticises the funding.",
+        "Bundestag beschließt Bahnreform – Kritik an Finanzierung des Infrastrukturfonds":
+            "Bundestag passes rail reform – criticism of infrastructure fund financing",
+        "Bahnreform: Bundestag stimmt für neuen Infrastrukturfonds der Bahn":
+            "Rail reform: Bundestag votes for new rail infrastructure fund",
+    }
+
+    def __init__(self, budget_segments: int | None = None):
+        self.calls = 0
+        self.budget = budget_segments
+        self.stats = {"translated": 0, "cached": 0, "seconds": 0.0}
+        self.available = True
+
+    def info(self):
+        return {"enabled": True, "engine": "Fake"}
+
+    def start_budget(self, seconds):
+        self.stats = {"translated": 0, "cached": 0, "seconds": 0.0}
+
+    def translate(self, texts, src, tgt):
+        out = []
+        for t in texts:
+            if self.budget is not None and self.budget <= 0:
+                out.append(None)
+                continue
+            if self.budget is not None:
+                self.budget -= 1
+            self.calls += 1
+            out.append(self.KNOWN.get(t, f"[{tgt}] {t}"))
+        return out

@@ -101,13 +101,7 @@ export const staticApi = {
     return queryStories(all, query);
   },
   story: (id: number | string) => getJson<StoryDetail>(`stories/${id}.json`),
-  summarize: async (_id: number | string): Promise<StoryDetail> => {
-    throw new StaticApiError(409, "Nicht verfügbar");
-  },
   digest: (scope: string) => getJson<Digest>(`digests/${scope.replace(":", "-")}.json`),
   briefing: () => getJson<{ day: Digest; week: Digest; categories: Digest[] }>("briefing.json"),
   sources: () => getJson<{ items: Source[] }>("sources.json"),
-  refresh: async (): Promise<{ status: string }> => {
-    throw new StaticApiError(409, "Nicht verfügbar");
-  },
 };

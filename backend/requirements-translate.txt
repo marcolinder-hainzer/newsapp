@@ -1,0 +1,6 @@
+# Optional: kostenlose Übersetzung DE <-> EN mit OPUS-MT (läuft lokal, keine Kosten).
+# PyTorch zuerst als CPU-Version installieren (deutlich kleiner):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+transformers>=4.44
+sentencepiece>=0.2
+sacremoses>=0.1

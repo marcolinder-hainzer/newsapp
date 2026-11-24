@@ -79,7 +79,6 @@ CREATE TABLE IF NOT EXISTS stories (
     summary_status TEXT DEFAULT 'none',
     summary_article_count INTEGER DEFAULT 0,
     summary_updated TEXT,
-    llm_trust_json TEXT,
     dirty INTEGER DEFAULT 1
 );
 CREATE INDEX IF NOT EXISTS idx_stories_updated ON stories(last_updated);
@@ -91,6 +90,12 @@ CREATE TABLE IF NOT EXISTS digests (
     story_ids TEXT,
     generated_by TEXT,
     generated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS translations (
+    key TEXT PRIMARY KEY,
+    text TEXT NOT NULL,
+    created TEXT
 );
 
 CREATE TABLE IF NOT EXISTS meta (

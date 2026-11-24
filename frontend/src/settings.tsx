@@ -4,14 +4,12 @@ import { dictionaries, type Dict } from "./i18n";
 import type { Lang, Meta, Voice } from "./types";
 
 export type Theme = "system" | "light" | "dark";
-export type TtsEngine = "auto" | "server" | "browser";
 
 export interface Settings {
   lang: Lang;
   theme: Theme;
   voice: Voice;
   rate: number;
-  ttsEngine: TtsEngine;
   /** Optional manuell gewählte Gerätestimmen, Schlüssel z. B. "de-female" → voiceURI */
   deviceVoices: Record<string, string>;
 }
@@ -21,7 +19,6 @@ const DEFAULTS: Settings = {
   theme: "system",
   voice: "female",
   rate: 1,
-  ttsEngine: "auto",
   deviceVoices: {},
 };
 

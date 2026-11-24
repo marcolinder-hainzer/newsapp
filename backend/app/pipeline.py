@@ -12,20 +12,18 @@ import httpx
 from . import cluster, digests, ingest, stories, summarize
 from .config import Settings
 from .db import Database, iso, utcnow
-from .llm import LLMClient
 from .sources import source_map, sync_sources
-from .tts import TTSService
+from .translate import Translator
 
 log = logging.getLogger(__name__)
 
 
 class Pipeline:
-    def __init__(self, settings: Settings, db: Database, llm: LLMClient, tts: TTSService,
+    def __init__(self, settings: Settings, db: Database, translator: Translator,
                  transport: httpx.BaseTransport | None = None):
         self.settings = settings
         self.db = db
-        self.llm = llm
-        self.tts = tts
+        self.translator = translator
         self.transport = transport
         self._lock = threading.Lock()
         self._stop = threading.Event()
@@ -59,13 +57,15 @@ class Pipeline:
             stories.recompute_stories(self.db, self.sources, touched)
             if touched:  # neue Meldungen sofort sichtbar machen, Zusammenfassungen folgen
                 self.db.set_meta("last_update", iso(utcnow()))
-            result["summaries"] = summarize.summarize_pending(self.db, self.sources, self.llm, self.settings)
+            result["summaries"] = summarize.summarize_pending(self.db, self.sources, self.translator, self.settings)
             stories.recompute_stories(self.db, self.sources)
             merged = cluster.merge_similar_stories(self.db)
             if merged:
                 stories.recompute_stories(self.db, self.sources, merged)
+                for story_id in merged:  # zusammengeführte Meldungen gleich neu zusammenfassen
+                    summarize.summarize_story(self.db, story_id, self.sources, self.translator)
             result["merged"] = len(merged)
-            result["digests"] = digests.refresh_digests(self.db, self.llm, self.settings)
+            result["digests"] = digests.refresh_digests(self.db)
             self.prune()
             result["duration_s"] = round(time.monotonic() - started, 1)
             self.db.set_meta("last_cycle", result)
@@ -86,10 +86,7 @@ class Pipeline:
         with self.db.write() as conn:
             conn.execute("DELETE FROM articles WHERE published_at < ?", (cutoff,))
             conn.execute("DELETE FROM stories WHERE last_updated < ?", (cutoff,))
-            conn.execute("UPDATE articles SET content = NULL WHERE published_at < ? AND content IS NOT NULL",
-                         (iso(utcnow() - timedelta(days=4)),))
-        if self.tts.available:
-            self.tts.prune_cache()
+            conn.execute("DELETE FROM translations WHERE created < ?", (cutoff,))
 
     # --- Hintergrund-Thread -------------------------------------------------
     def start(self) -> None:

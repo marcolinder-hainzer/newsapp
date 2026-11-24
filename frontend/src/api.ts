@@ -52,16 +52,9 @@ const serverApi = {
   meta: () => request<Meta>("/api/meta"),
   stories: (query: StoryQuery) => request<StoryList>(`/api/stories${qs(query)}`),
   story: (id: number | string) => request<StoryDetail>(`/api/stories/${id}`),
-  summarize: (id: number | string) => request<StoryDetail>(`/api/stories/${id}/summarize`, { method: "POST" }),
   digest: (scope: string) => request<Digest>(`/api/digest${qs({ scope })}`),
   briefing: () => request<{ day: Digest; week: Digest; categories: Digest[] }>("/api/briefing"),
   sources: () => request<{ items: Source[] }>("/api/sources"),
-  refresh: () => request<{ status: string }>("/api/admin/refresh", { method: "POST" }),
 };
 
 export const api: typeof serverApi = IS_STATIC ? staticApi : serverApi;
-
-export const ttsUrl = {
-  story: (id: number, lang: string, voice: string) => `/api/tts/story/${id}${qs({ lang, voice })}`,
-  digest: (scope: string, lang: string, voice: string) => `/api/tts/digest${qs({ scope, lang, voice })}`,
-};

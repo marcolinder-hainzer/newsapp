@@ -1,7 +1,7 @@
-import { ArrowLeft, ExternalLink, EyeOff, Info, LoaderCircle, Sparkles } from "lucide-react";
+import { ArrowLeft, ExternalLink, EyeOff, Info, Languages, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { api, ttsUrl } from "../api";
+import { api } from "../api";
 import type { Track } from "../audio/player";
 import { BiasBar } from "../components/BiasBar";
 import { ListenButton } from "../components/ListenButton";
@@ -16,11 +16,10 @@ type BucketFilter = "all" | "left" | "center" | "right";
 export function StoryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t, settings, meta } = useApp();
+  const { t, settings } = useApp();
   const categoryName = useCategoryName();
   const [story, setStory] = useState<StoryDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [generating, setGenerating] = useState(false);
   const [summaryLang, setSummaryLang] = useState<Lang>(settings.lang);
   const [bucket, setBucket] = useState<BucketFilter>("all");
 
@@ -30,22 +29,10 @@ export function StoryPage() {
     let cancelled = false;
     setStory(null);
     setError(null);
-    api.story(id!).then(async (s) => {
+    api.story(id!).then((s) => {
       if (cancelled) return;
       setStory(s);
       window.scrollTo({ top: 0 });
-      // Fehlt eine KI-Zusammenfassung, wird sie beim Öffnen erstellt
-      if (s.can_generate_summary && s.summary.generated_by !== "llm") {
-        setGenerating(true);
-        try {
-          const updated = await api.summarize(s.id);
-          if (!cancelled) setStory(updated);
-        } catch {
-          /* Auszug bleibt sichtbar */
-        } finally {
-          if (!cancelled) setGenerating(false);
-        }
-      }
     }).catch((e) => !cancelled && setError(e.status === 404 ? t.storyNotFound : e.message));
     return () => {
       cancelled = true;
@@ -72,7 +59,6 @@ export function StoryPage() {
     lang: summaryLang,
     href: `/meldung/${story.id}`,
     getSpeech: async () => story.speech[summaryLang],
-    serverUrl: (voice) => ttsUrl.story(story.id, summaryLang, voice),
   };
 
   return (
@@ -118,9 +104,6 @@ export function StoryPage() {
               </div>
             </div>
 
-            {generating && (
-              <p className="generating"><LoaderCircle size={16} className="spin" /> {t.generating}</p>
-            )}
             {!requested?.available && part && (
               <p className="notice inline"><Info size={15} aria-hidden="true" /> {t.translationUnavailable(summaryLang)}</p>
             )}
@@ -129,7 +112,7 @@ export function StoryPage() {
                 {part.summary && <p className="summary-text">{part.summary}</p>}
                 {part.key_points && part.key_points.length > 0 && (
                   <>
-                    <h3 className="sub-title">{t.keyPoints}</h3>
+                    <h3 className="sub-title">{t.otherHeadlines}</h3>
                     <ul className="key-points">
                       {part.key_points.map((p, i) => <li key={i}>{p}</li>)}
                     </ul>
@@ -146,16 +129,12 @@ export function StoryPage() {
               <p className="muted">{story.teaser[summaryLang]}</p>
             )}
             <p className="muted small summary-source">
-              <Sparkles size={13} aria-hidden="true" />{" "}
-              {story.summary.generated_by === "llm" ? `${t.aiSummary}${story.summary.model ? ` · ${story.summary.model}` : ""}` : t.extractiveSummary}
+              <Sparkles size={13} aria-hidden="true" /> {t.extractiveSummary}
+              {part?.machine_translated && (
+                <> · <Languages size={13} aria-hidden="true" /> {t.machineTranslated}</>
+              )}
               {story.summary.generated_at && ` · ${timeAgo(story.summary.generated_at, t)}`}
             </p>
-            {story.can_generate_summary && !generating && story.summary.generated_by === "llm" && meta?.llm.enabled && (
-              <button className="link-btn" onClick={async () => {
-                setGenerating(true);
-                try { setStory(await api.summarize(story.id)); } finally { setGenerating(false); }
-              }}>{t.generateSummary}</button>
-            )}
           </section>
         </article>
 

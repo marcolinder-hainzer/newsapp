@@ -5,8 +5,8 @@ from fastapi.testclient import TestClient
 from app.main import create_app
 
 
-def make_client(test_settings, feed_transport, llm=None):
-    app = create_app(test_settings, llm=llm, transport=feed_transport, start_scheduler=False)
+def make_client(test_settings, feed_transport, translator=None):
+    app = create_app(test_settings, translator=translator, transport=feed_transport, start_scheduler=False)
     app.state.pipeline.run_cycle()
     return app, TestClient(app)
 
@@ -52,7 +52,11 @@ def test_story_detail_has_bilingual_fallback_summary(test_settings, feed_transpo
     assert detail["speech"]["de"]["text"].startswith(detail["summary"]["de"]["title"])
     assert detail["speech"]["en"]["lang"] == "de"  # keine englische Fassung → Originalsprache
     assert detail["trust"]["components"]["corroboration"] > 0
-    assert detail["can_generate_summary"] is False
+    # Weitere Schlagzeilen, nach Zuverlässigkeit der Quelle sortiert
+    assert detail["summary"]["de"]["key_points"] == [
+        "Das Wochenmagazin (fiktiv): Bahnreform: Bundestag stimmt für neuen Infrastrukturfonds der Bahn",
+        "Morgenzeitung (fiktiv): Bundestag beschließt Bahnreform – Kritik an Finanzierung des Infrastrukturfonds",
+    ]
 
 
 def test_filters_and_sorting(test_settings, feed_transport):
@@ -97,15 +101,15 @@ def test_digests_and_meta(test_settings, feed_transport):
     assert politik["stories"]
 
     meta = client.get("/api/meta").json()
-    assert meta["llm"]["enabled"] is False
-    assert meta["tts"]["server"] is False
+    assert meta["translation"]["enabled"] is False
+    assert "llm" not in meta and "tts" not in meta
     assert meta["stats"]["sources"] == 8
     assert meta["last_update"]
 
     sources = client.get("/api/sources").json()["items"]
     assert {s["id"] for s in sources} >= {"bbc", "tagesschau"}
     assert client.get("/api/digest", params={"scope": "nope"}).status_code == 404
-    assert client.get("/api/tts/story/1").status_code == 404  # keine Server-Stimme konfiguriert
+    assert client.get("/api/tts/story/1").status_code == 404  # keine kostenpflichtigen Stimmen mehr
 
 
 def test_second_cycle_is_idempotent(test_settings, feed_transport):

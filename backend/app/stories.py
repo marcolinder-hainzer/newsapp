@@ -67,15 +67,14 @@ def recompute_stories(db: Database, sources: dict[str, dict], story_ids: set[int
         image = headline_article["image_url"] or next((a["image_url"] for a in sorted(
             arts, key=lambda a: -int(sources[a["source_id"]].get("reliability") or 0)) if a["image_url"]), None)
 
-        summary = loads(story["summary_json"], {}) or {}
-        category = summary.get("category") if story["summary_status"] == "llm" else None
+        votes = Counter()
+        for a in arts:
+            votes[a["category"]] += 1 + (a["category_conf"] or 0)
+        category = votes.most_common(1)[0][0] if votes else categories.DEFAULT_CATEGORY
         if category not in categories.SLUGS:
-            votes = Counter()
-            for a in arts:
-                votes[a["category"]] += 1 + (a["category_conf"] or 0)
-            category = votes.most_common(1)[0][0] if votes else categories.DEFAULT_CATEGORY
+            category = categories.DEFAULT_CATEGORY
 
-        trust = compute_trust(arts, sources, loads(story["llm_trust_json"]))
+        trust = compute_trust(arts, sources)
         published = sorted(a["published_at"] for a in arts)
         coverage = coverage_score(len(source_ids), len(arts), len(countries), len(bias))
         updates.append((
@@ -336,7 +335,7 @@ def story_speech(story: dict, lang: str) -> tuple[str, str]:
         pieces.append(_sentence(part["summary"]))
     points = part.get("key_points") or []
     if points:
-        pieces.append("Die wichtigsten Punkte:" if lang == "de" else "The key points:")
+        pieces.append("So berichten weitere Medien:" if lang == "de" else "How other outlets report it:")
         pieces.extend(_sentence(p) for p in points)
     if part.get("context"):
         pieces.append(("Warum das wichtig ist: " if lang == "de" else "Why it matters: ") + _sentence(part["context"]))

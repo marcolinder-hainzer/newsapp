@@ -5,8 +5,8 @@ Der Score setzt sich transparent aus vier Komponenten zusammen:
 * Quellen-Zuverlässigkeit (45 %): Ø der Zuverlässigkeitswerte aller berichtenden Medien.
 * Bestätigung (25 %): Wie viele unabhängige Medien berichten über dasselbe Ereignis?
 * Vielfalt (10 %): Berichten Medien aus verschiedenen politischen Lagern und Ländern?
-* Inhaltsqualität (20 %): KI-Prüfung (belegte Aussagen, Widersprüche, Tonalität) bzw. ohne KI
-  eine Heuristik (reißerische Überschriften, Meinungsbeiträge).
+* Inhaltsqualität (20 %): Heuristik – reißerische Überschriften und reine Meinungsbeiträge
+  senken den Wert.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ def trust_label(score: int) -> str:
     return "low"
 
 
-def compute_trust(articles: list[dict], sources: dict[str, dict], llm_assessment: dict | None = None) -> dict:
+def compute_trust(articles: list[dict], sources: dict[str, dict]) -> dict:
     """articles: Liste mit mindestens source_id, title, is_opinion."""
     source_ids = sorted({a["source_id"] for a in articles if a["source_id"] in sources})
     if not source_ids:
@@ -48,27 +48,21 @@ def compute_trust(articles: list[dict], sources: dict[str, dict], llm_assessment
 
     notes_de: list[str] = []
     notes_en: list[str] = []
-    if llm_assessment and isinstance(llm_assessment.get("score"), (int, float)):
-        content = max(0, min(100, float(llm_assessment["score"])))
-        notes_de.extend(llm_assessment.get("notes_de") or [])
-        notes_en.extend(llm_assessment.get("notes_en") or [])
-        content_method = "ai"
-    else:
-        content = 72.0  # ohne KI-Prüfung bleibt eine Unsicherheit
-        titles = [a.get("title") or "" for a in articles]
-        bait = sum(1 for t in titles if clickbait_hits(t) > 0)
-        if titles and bait / len(titles) >= 0.5:
-            content -= 25
-            notes_de.append("Überschriften enthalten auffällig reißerische Formulierungen.")
-            notes_en.append("Headlines contain noticeably sensational wording.")
-        elif bait:
-            content -= 8
-        opinion = sum(1 for a in articles if a.get("is_opinion"))
-        if articles and opinion == len(articles):
-            content -= 25
-            notes_de.append("Es handelt sich ausschließlich um Meinungsbeiträge.")
-            notes_en.append("Coverage consists only of opinion pieces.")
-        content_method = "heuristic"
+    content = 72.0
+    titles = [a.get("title") or "" for a in articles]
+    bait = sum(1 for t in titles if clickbait_hits(t) > 0)
+    if titles and bait / len(titles) >= 0.5:
+        content -= 25
+        notes_de.append("Überschriften enthalten auffällig reißerische Formulierungen.")
+        notes_en.append("Headlines contain noticeably sensational wording.")
+    elif bait:
+        content -= 8
+    opinion = sum(1 for a in articles if a.get("is_opinion"))
+    if articles and opinion == len(articles):
+        content -= 25
+        notes_de.append("Es handelt sich ausschließlich um Meinungsbeiträge.")
+        notes_en.append("Coverage consists only of opinion pieces.")
+    content_method = "heuristic"
 
     if n == 1:
         notes_de.insert(0, "Bisher berichtet nur eine Quelle – noch nicht unabhängig bestätigt.")

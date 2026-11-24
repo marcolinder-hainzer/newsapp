@@ -27,7 +27,7 @@ export function DigestCard({ digest, tabs, compact = false, link }: Props) {
         <div>
           <p className="kicker">
             <Sparkles size={14} aria-hidden="true" />
-            {digest.generated_by === "llm" ? t.generatedByAi : t.generatedByTemplate}
+            {t.generatedByTemplate}
             <span className="muted"> · {timeAgo(digest.generated_at, t)}</span>
           </p>
           <h2 className="digest-title">{link ? <Link to={link}>{content?.headline || digest.title[lang]}</Link> : content?.headline || digest.title[lang]}</h2>

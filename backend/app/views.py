@@ -6,13 +6,12 @@ from datetime import timedelta
 
 from . import categories, digests, stories
 from .db import Database, iso, loads, utcnow
-from .llm import LLMClient
 
 APP_NAME = "Weitblick"
-APP_VERSION = "1.1.0"
+APP_VERSION = "2.0.0"
 
 
-def meta_payload(db: Database, sources: dict[str, dict], llm: LLMClient, tts_info: dict,
+def meta_payload(db: Database, sources: dict[str, dict], translation_info: dict,
                  refresh_interval_minutes: int, running: bool = False, static: bool = False) -> dict:
     since = iso(utcnow() - timedelta(hours=24))
     with db.connect() as conn:
@@ -24,8 +23,7 @@ def meta_payload(db: Database, sources: dict[str, dict], llm: LLMClient, tts_inf
         "static": static,
         "categories": categories.CATEGORIES,
         "countries": countries,
-        "llm": {"enabled": llm.enabled, "model": llm.model if llm.enabled else None},
-        "tts": tts_info,
+        "translation": translation_info,
         "last_update": db.get_meta("last_update"),
         "cycle_running": running,
         "refresh_interval_minutes": refresh_interval_minutes,
@@ -33,7 +31,7 @@ def meta_payload(db: Database, sources: dict[str, dict], llm: LLMClient, tts_inf
     }
 
 
-def story_detail_payload(db: Database, story: dict, sources: dict[str, dict], can_generate: bool) -> dict:
+def story_detail_payload(db: Database, story: dict, sources: dict[str, dict]) -> dict:
     item = stories.serialize_many(db, [story], sources)[0]
     summary = loads(story.get("summary_json"), {}) or {}
     trust = loads(story.get("trust_json"), {}) or {}
@@ -48,16 +46,15 @@ def story_detail_payload(db: Database, story: dict, sources: dict[str, dict], ca
         "trust": {**trust, "score": story.get("trust_score") or 0},
         "articles": stories.story_articles(db, story["id"], sources),
         "speech": {lang: dict(zip(("text", "lang"), stories.story_speech(story, lang))) for lang in ("de", "en")},
-        "can_generate_summary": can_generate,
     })
     return item
 
 
-def digest_payload(db: Database, scope: str, sources: dict[str, dict], llm: LLMClient) -> dict:
-    """Briefing für einen Bereich; fehlt es noch, wird eine (kostenlose) Vorlagen-Fassung erstellt."""
+def digest_payload(db: Database, scope: str, sources: dict[str, dict]) -> dict:
+    """Briefing für einen Bereich; fehlt es noch, wird es sofort erstellt."""
     digest = digests.get_digest(db, scope, sources)
     if digest is None:
-        digests.generate_digest(db, scope, llm, use_llm=False)
+        digests.generate_digest(db, scope)
         digest = digests.get_digest(db, scope, sources)
     digest["speech"] = {lang: digests.digest_speech(digest, lang) for lang in ("de", "en")}
     return digest

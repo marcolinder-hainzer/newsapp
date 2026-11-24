@@ -3,10 +3,10 @@
 Ablauf:
 1. Neue Artikel werden per TF-IDF/Kosinus-Ähnlichkeit (Titel + Teaser) mit den Artikeln der
    letzten Tage verglichen und der ähnlichsten bestehenden Meldung zugeordnet – oder bilden eine neue.
-   Meldungen mit KI-Zusammenfassung bringen zusätzlich einen deutschen und einen englischen
-   "Anker"-Text mit, so dass auch sprachübergreifend zugeordnet werden kann.
-2. Ein Zusammenführungs-Durchlauf vereint Meldungen, deren englische Zusammenfassungen sehr ähnlich
-   sind (z. B. eine deutsch- und eine englischsprachige Meldung zum selben Ereignis).
+   Meldungen mit (ggf. maschinell übersetzter) zweisprachiger Zusammenfassung bringen zusätzlich einen
+   deutschen und einen englischen "Anker"-Text mit, so dass auch sprachübergreifend zugeordnet wird.
+2. Ein Zusammenführungs-Durchlauf vereint Meldungen, deren englische Fassungen sehr ähnlich sind
+   (z. B. eine deutsch- und eine englischsprachige Meldung zum selben Ereignis).
 """
 
 from __future__ import annotations
@@ -53,7 +53,7 @@ def assign_articles(db: Database, window_hours: int = 96, threshold: float = ASS
         ).fetchall()
         anchor_rows = conn.execute(
             """SELECT id, summary_json, last_updated FROM stories
-               WHERE summary_status = 'llm' AND last_updated >= ?""",
+               WHERE summary_json IS NOT NULL AND last_updated >= ?""",
             (since,),
         ).fetchall()
 
@@ -77,7 +77,7 @@ def assign_articles(db: Database, window_hours: int = 96, threshold: float = ASS
         ts = (parse_iso(a["last_updated"]) or now).timestamp()
         for lang in ("de", "en"):
             part = summary.get(lang) or {}
-            if not part.get("title"):
+            if not part.get("available", True) or not part.get("title"):
                 continue
             text = f"{part['title']} {part['title']} {part.get('summary', '')}"
             feats = _features(text, lang)
@@ -145,7 +145,7 @@ def merge_similar_stories(db: Database, window_hours: int = 72, threshold: float
     with db.connect() as conn:
         rows = conn.execute(
             """SELECT id, summary_json, source_count, first_seen FROM stories
-               WHERE summary_status = 'llm' AND last_updated >= ?""",
+               WHERE summary_json IS NOT NULL AND last_updated >= ?""",
             (since,),
         ).fetchall()
     if len(rows) < 2:
@@ -154,6 +154,8 @@ def merge_similar_stories(db: Database, window_hours: int = 72, threshold: float
     docs, ids, sizes, times = [], [], [], []
     for r in rows:
         en = (loads(r["summary_json"], {}) or {}).get("en") or {}
+        if not en.get("available", True) or not en.get("title"):
+            continue
         text = " ".join([en.get("title", "")] * 2 + [en.get("summary", "")] + list(en.get("key_points", [])))
         feats = _features(text, "en")
         if len(feats) < 5:

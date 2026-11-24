@@ -74,7 +74,7 @@ export function TrustPanel({ trust }: { trust: TrustDetail }) {
         </ul>
       )}
       {trust.content_method && (
-        <p className="muted small">{trust.content_method === "ai" ? t.contentMethodAi : t.contentMethodHeuristic}</p>
+        <p className="muted small">{t.contentMethodHeuristic}</p>
       )}
     </section>
   );

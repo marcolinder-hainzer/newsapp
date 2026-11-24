@@ -30,10 +30,3 @@ def test_clickbait_and_opinion_reduce_content_score():
     clean = compute_trust([art("c"), art("c")], SOURCES)
     bait = compute_trust([art("c", "SCHOCK! Unglaublich"), art("c", "Kommentar: X", 1)], SOURCES)
     assert bait["components"]["content"] < clean["components"]["content"]
-
-
-def test_llm_assessment_is_used():
-    result = compute_trust([art("a")], SOURCES, {"score": 20, "notes_de": ["Unbestätigt"], "notes_en": ["Unconfirmed"]})
-    assert result["components"]["content"] == 20
-    assert result["content_method"] == "ai"
-    assert "Unbestätigt" in result["notes"]["de"]

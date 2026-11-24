@@ -83,14 +83,6 @@ def parse_entries(raw: bytes, source: dict, feed_category: str | None, now: date
         description = clean_html(entry.get("summary") or entry.get("description"), 1500)
         if description.lower() == title.lower():
             description = ""
-        content = ""
-        for block in entry.get("content", []) or []:
-            text = clean_html(block.get("value"))
-            if len(text) > len(content):
-                content = text
-        if len(content) < 400 or content[:200] == description[:200]:
-            content = ""
-        content = content[:6000]
 
         tags = [t.get("term", "") for t in entry.get("tags", []) or [] if t.get("term")]
         if feed_category:
@@ -112,7 +104,7 @@ def parse_entries(raw: bytes, source: dict, feed_category: str | None, now: date
             "url": url,
             "title": title,
             "description": description,
-            "content": content,
+            "content": "",
             "image_url": _entry_image(entry),
             "language": language,
             "category": category,

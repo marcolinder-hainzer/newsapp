@@ -28,15 +28,13 @@ from pathlib import Path
 from . import digests, stories, views
 from .config import Settings
 from .db import Database, iso, utcnow
-from .llm import LLMClient
 from .pipeline import Pipeline
-from .tts import TTSService
+from .translate import Translator
 
 log = logging.getLogger(__name__)
 
 RECENT_HOURS = 48
 MAX_DAYS = 7
-STATIC_TTS = {"server": False, "provider": None, "label": None, "voices": None}
 
 
 def scope_filename(scope: str) -> str:
@@ -69,7 +67,7 @@ def _story_extras(db: Database, story_ids: list[int]) -> dict[int, dict]:
     return extras
 
 
-def export(db: Database, sources: dict[str, dict], llm: LLMClient, settings: Settings, out: Path) -> dict:
+def export(db: Database, sources: dict[str, dict], translation_info: dict, settings: Settings, out: Path) -> dict:
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
@@ -90,7 +88,7 @@ def export(db: Database, sources: dict[str, dict], llm: LLMClient, settings: Set
         item.update(extras.get(row["id"], {}))
         (recent if (row["last_updated"] or "") >= recent_cutoff else older).append(item)
         _write(out / "stories" / f"{row['id']}.json",
-               views.story_detail_payload(db, row, sources, can_generate=False))
+               views.story_detail_payload(db, row, sources))
 
     generated_at = iso(now)
     _write(out / "stories-recent.json", {"generated_at": generated_at, "items": recent})
@@ -98,7 +96,7 @@ def export(db: Database, sources: dict[str, dict], llm: LLMClient, settings: Set
 
     all_digests = {}
     for scope in digests.all_scopes():
-        digest = views.digest_payload(db, scope, sources, llm)
+        digest = views.digest_payload(db, scope, sources)
         all_digests[scope] = digest
         _write(out / "digests" / f"{scope_filename(scope)}.json", digest)
     _write(out / "briefing.json", {
@@ -108,22 +106,21 @@ def export(db: Database, sources: dict[str, dict], llm: LLMClient, settings: Set
     })
 
     _write(out / "sources.json", views.sources_payload(db, sources))
-    meta = views.meta_payload(db, sources, llm, STATIC_TTS, settings.refresh_interval_minutes, static=True)
+    meta = views.meta_payload(db, sources, translation_info, settings.refresh_interval_minutes, static=True)
     meta["generated_at"] = generated_at
     _write(out / "meta.json", meta)
     return {"stories": len(rows), "recent": len(recent), "older": len(older)}
 
 
 def compact_database(db: Database, settings: Settings) -> None:
-    """Verkleinert die Datenbank für die Zwischenspeicherung zwischen zwei Durchläufen.
-
-    Volltexte werden entfernt (sie werden nur während der Zusammenfassung gebraucht) und alte Einträge
-    gelöscht, damit der Zwischenspeicher klein bleibt."""
+    """Verkleinert die Datenbank für die Zwischenspeicherung zwischen zwei Durchläufen
+    (alte Einträge löschen, gespeicherte Volltexte älterer Versionen entfernen)."""
     cutoff = iso(utcnow() - timedelta(days=settings.retention_days))
     with db.write() as conn:
         conn.execute("DELETE FROM articles WHERE published_at < ?", (cutoff,))
         conn.execute("DELETE FROM stories WHERE last_updated < ?", (cutoff,))
         conn.execute("UPDATE articles SET content = NULL, content_fetched = 0 WHERE content IS NOT NULL")
+        conn.execute("DELETE FROM translations WHERE created < ?", (cutoff,))
     with db.connect() as conn:
         conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
     raw = sqlite3.connect(db.path)
@@ -144,14 +141,13 @@ def main(argv: list[str] | None = None) -> int:
     settings = Settings()
     settings.ensure_dirs()
     db = Database(settings.db_path)
-    llm = LLMClient(settings)
-    pipeline = Pipeline(settings, db, llm, TTSService(settings))
+    translator = Translator(db, enabled=settings.translation_enabled)
+    log.info("Übersetzung: %s", "aktiv (OPUS-MT)" if translator.available else "nicht verfügbar")
+    pipeline = Pipeline(settings, db, translator)
     if not args.skip_cycle:
         result = pipeline.run_cycle()
         log.info("Durchlauf: %s", result)
-        if llm.enabled:
-            log.info("KI-Verbrauch: %s", llm.usage)
-    stats = export(db, pipeline.sources, llm, settings, Path(args.out))
+    stats = export(db, pipeline.sources, translator.info(), settings, Path(args.out))
     log.info("Export abgeschlossen: %s", stats)
     if args.compact_db:
         compact_database(db, settings)

@@ -5,36 +5,22 @@ import { useApp } from "../settings";
 import type { Lang, Voice } from "../types";
 
 export function SettingsDialog({ onClose }: { onClose: () => void }) {
-  const { t, settings, update, meta } = useApp();
+  const { t, settings, update } = useApp();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [voices, setVoices] = useState<Record<Lang, SpeechSynthesisVoice[]>>({ de: [], en: [] });
   const speaker = useRef(new DeviceSpeaker());
-  const audio = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     dialogRef.current?.showModal();
     whenVoicesReady().then(() => setVoices({ de: listVoices("de"), en: listVoices("en") }));
     const s = speaker.current;
-    return () => {
-      s.stop();
-      audio.current?.pause();
-    };
+    return () => s.stop();
   }, []);
-
-  const serverOn = !!meta?.tts.server && settings.ttsEngine !== "browser";
 
   const preview = (lang: Lang, voice: Voice) => {
     speaker.current.stop();
-    audio.current?.pause();
-    const sentence = lang === "de" ? "Guten Tag. Das ist eine Hörprobe für die Nachrichten." : "Hello. This is a voice preview for the news.";
-    if (serverOn) {
-      audio.current = new Audio(`/api/tts/preview?lang=${lang}&voice=${voice}`);
-      audio.current.playbackRate = settings.rate;
-      audio.current.play().catch(() => speaker.current.start(sentence, lang, voice, settings.deviceVoices[`${lang}-${voice}`]));
-      return;
-    }
     speaker.current.rate = settings.rate;
-    speaker.current.start(sentence, lang, voice, settings.deviceVoices[`${lang}-${voice}`]);
+    speaker.current.start(t.testSentenceFor(lang), lang, voice, settings.deviceVoices[`${lang}-${voice}`]);
   };
 
   return (
@@ -70,9 +56,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
                 aria-pressed={settings.voice === v}>
                 <span className="voice-name">{v === "female" ? t.voiceFemale : t.voiceMale}</span>
                 <span className="muted small">
-                  {serverOn && meta?.tts.voices
-                    ? meta.tts.voices[settings.lang][v].replace(/^(de|en)-[A-Z]{2}-/, "").replace(/MultilingualNeural|Neural/, "")
-                    : pickVoice(settings.lang, v, settings.deviceVoices[`${settings.lang}-${v}`])?.name ?? "—"}
+                  {pickVoice(settings.lang, v, settings.deviceVoices[`${settings.lang}-${v}`])?.name ?? "—"}
                 </span>
                 <span className="voice-preview" role="button" tabIndex={0} aria-label={t.test}
                   onClick={(e) => { e.stopPropagation(); preview(settings.lang, v); }}
@@ -88,18 +72,8 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
               onChange={(e) => update({ rate: Number(e.target.value) })} />
             <span className="mono">{settings.rate.toFixed(2)}×</span>
           </label>
-        </section>
-
-        <section className="setting">
-          <h3>{t.ttsEngine}</h3>
-          <div className="segmented" role="group" aria-label={t.ttsEngine}>
-            <button className={settings.ttsEngine === "auto" ? "active" : ""} onClick={() => update({ ttsEngine: "auto" })}>{t.ttsAuto}</button>
-            <button className={settings.ttsEngine === "browser" ? "active" : ""} onClick={() => update({ ttsEngine: "browser" })}>{t.ttsBrowser}</button>
-          </div>
-          <p className="muted small">
-            {meta?.tts.server ? t.ttsServerActive(meta.tts.label ?? "") : t.ttsServerUnavailable}
-          </p>
-          {(!serverOn) && (["de", "en"] as const).map((lang) => (
+          <p className="muted small">{t.voiceHint}</p>
+          {(["de", "en"] as const).map((lang) => (
             (["female", "male"] as const).map((v) => (
               <label className="setting-row" key={`${lang}-${v}`}>
                 <span>{t.deviceVoice(lang.toUpperCase(), v === "female" ? t.voiceFemale : t.voiceMale)}</span>
