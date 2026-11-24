@@ -22,9 +22,12 @@ from .db import Database, iso, utcnow
 
 log = logging.getLogger(__name__)
 
+# Je Richtung das bevorzugte Modell zuerst; schlägt das Laden fehl, wird das nächste verwendet.
+# Für Englisch → Deutsch liefert das größere "tc-big"-Modell deutlich natürlichere Überschriften.
 MODELS = {
-    ("de", "en"): "Helsinki-NLP/opus-mt-de-en",
-    ("en", "de"): "Helsinki-NLP/opus-mt-en-de",
+    ("de", "en"): [os.getenv("TRANSLATION_MODEL_DE_EN") or "Helsinki-NLP/opus-mt-de-en"],
+    ("en", "de"): [os.getenv("TRANSLATION_MODEL_EN_DE") or "Helsinki-NLP/opus-mt-tc-big-en-de",
+                   "Helsinki-NLP/opus-mt-en-de"],
 }
 ENGINE_LABEL = "OPUS-MT (Helsinki-NLP)"
 
@@ -34,7 +37,9 @@ def dependencies_installed() -> bool:
 
 
 def _key(text: str, src: str, tgt: str) -> str:
-    return hashlib.sha1(f"{src}>{tgt}|{text}".encode("utf-8")).hexdigest()
+    # Das bevorzugte Modell ist Teil des Schlüssels: ein Modellwechsel übersetzt neue Texte neu
+    model = MODELS.get((src, tgt), ["?"])[0]
+    return hashlib.sha1(f"{model}|{src}>{tgt}|{text}".encode("utf-8")).hexdigest()
 
 
 class Translator:
@@ -73,14 +78,26 @@ class Translator:
                 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
                 torch.set_num_threads(max(1, os.cpu_count() or 1))
-                name = MODELS[(src, tgt)]
-                started = time.monotonic()
-                tokenizer = AutoTokenizer.from_pretrained(name)
-                model = AutoModelForSeq2SeqLM.from_pretrained(name)
-                model.eval()
-                self._models[(src, tgt)] = (tokenizer, model)
-                log.info("Übersetzungsmodell %s geladen (%.1f s)", name, time.monotonic() - started)
+                last_error: Exception | None = None
+                for name in MODELS[(src, tgt)]:
+                    started = time.monotonic()
+                    try:
+                        tokenizer = AutoTokenizer.from_pretrained(name)
+                        model = AutoModelForSeq2SeqLM.from_pretrained(name)
+                    except Exception as exc:  # z. B. Modell nicht verfügbar → nächstes versuchen
+                        log.warning("Übersetzungsmodell %s nicht verfügbar: %s", name, exc)
+                        last_error = exc
+                        continue
+                    model.eval()
+                    self._models[(src, tgt)] = (tokenizer, model)
+                    log.info("Übersetzungsmodell %s geladen (%.1f s)", name, time.monotonic() - started)
+                    break
+                else:
+                    raise RuntimeError(f"Kein Übersetzungsmodell für {src}→{tgt} verfügbar") from last_error
             return self._models[(src, tgt)]
+
+    def loaded_models(self) -> list[str]:
+        return [getattr(m, "name_or_path", "?") for _, m in self._models.values()]
 
     def _translate_batch(self, texts: list[str], src: str, tgt: str) -> list[str]:
         import torch

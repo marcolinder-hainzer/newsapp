@@ -65,7 +65,7 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: .hf-cache
-          key: opus-mt-de-en-v1
+          key: opus-mt-${{ hashFiles('backend/app/translate.py') }}
 
       - name: Letzten Datenstand laden
         uses: actions/cache/restore@v5
@@ -89,7 +89,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: .hf-cache
-          key: opus-mt-de-en-v1
+          key: opus-mt-${{ hashFiles('backend/app/translate.py') }}
 
       - name: Alte Datenstände aufräumen
         env:

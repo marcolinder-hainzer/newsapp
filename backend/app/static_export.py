@@ -155,7 +155,8 @@ def run_report(db: Database, result: dict, translator: Translator, stats: dict) 
         f"Zusammengeführte Meldungen: {result.get('merged')}",
         f"Export: {stats}",
         f"Meldungen (48 Std.): {len(rows)}, davon zweisprachig: {both}, Übersetzung ausstehend: {pending}",
-        f"Übersetzung: {'aktiv' if translator.available else 'nicht verfügbar'}",
+        f"Übersetzung: {'aktiv' if translator.available else 'nicht verfügbar'}"
+        + (f" – Modelle: {', '.join(translator.loaded_models())}" if hasattr(translator, "loaded_models") else ""),
     ]
     for target, label in (("en", "DE → EN"), ("de", "EN → DE")):
         top = sorted(samples[target], reverse=True)[:5]
