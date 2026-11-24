@@ -196,6 +196,8 @@ def fetch_all(db: Database, source_by_id: dict[str, dict], *, max_age_hours: int
         results = [f.result() for f in futures]
 
     for res in results:
+        if res["status"] == "error":
+            log.warning("Feed fehlgeschlagen: %s – %s", res["url"], res["error"])
         new_items = store_articles(db, res["articles"], now) if res["articles"] else 0
         stats["new_articles"] += new_items
         stats["errors" if res["status"] == "error" else res["status"]] += 1
