@@ -11,6 +11,8 @@ export interface Category {
 
 export interface Meta {
   app: { name: string; version: string };
+  static?: boolean;
+  generated_at?: string;
   categories: Category[];
   countries: string[];
   llm: { enabled: boolean; model: string | null };

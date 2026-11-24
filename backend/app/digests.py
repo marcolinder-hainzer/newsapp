@@ -175,8 +175,13 @@ def refresh_digests(db: Database, llm: LLMClient, settings: Settings, force: boo
         existing = {r["scope"]: dict(r) for r in conn.execute("SELECT * FROM digests").fetchall()}
     jobs: list[tuple[str, bool]] = []
     for scope in all_scopes():
-        interval = timedelta(minutes=settings.weekly_digest_interval_minutes if scope == "top:week"
-                             else settings.digest_interval_minutes)
+        if scope == "top:week":
+            minutes = settings.weekly_digest_interval_minutes
+        elif scope.startswith("category:"):
+            minutes = settings.category_digest_interval_minutes
+        else:
+            minutes = settings.digest_interval_minutes
+        interval = timedelta(minutes=minutes)
         current = existing.get(scope)
         if force or current is None:
             use_llm = True

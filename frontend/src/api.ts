@@ -1,4 +1,8 @@
+import { staticApi } from "./staticApi";
 import type { Digest, Meta, Source, StoryDetail, StoryList } from "./types";
+
+/** true, wenn die App als statische Seite (GitHub Pages) gebaut wurde */
+export const IS_STATIC = import.meta.env.VITE_STATIC === "1";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -44,7 +48,7 @@ function qs(params: object): string {
   return str ? `?${str}` : "";
 }
 
-export const api = {
+const serverApi = {
   meta: () => request<Meta>("/api/meta"),
   stories: (query: StoryQuery) => request<StoryList>(`/api/stories${qs(query)}`),
   story: (id: number | string) => request<StoryDetail>(`/api/stories/${id}`),
@@ -54,6 +58,8 @@ export const api = {
   sources: () => request<{ items: Source[] }>("/api/sources"),
   refresh: () => request<{ status: string }>("/api/admin/refresh", { method: "POST" }),
 };
+
+export const api: typeof serverApi = IS_STATIC ? staticApi : serverApi;
 
 export const ttsUrl = {
   story: (id: number, lang: string, voice: string) => `/api/tts/story/${id}${qs({ lang, voice })}`,

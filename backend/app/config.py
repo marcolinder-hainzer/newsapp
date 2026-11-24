@@ -44,7 +44,12 @@ class Settings:
     llm_effort: str = field(default_factory=lambda: os.getenv("LLM_EFFORT", "medium"))
     summaries_per_cycle: int = field(default_factory=lambda: _int("SUMMARIES_PER_CYCLE", 20))
     llm_concurrency: int = field(default_factory=lambda: _int("LLM_CONCURRENCY", 4))
+    # Kostenbremse: maximale Zahl an KI-Zusammenfassungen pro Tag (0 = unbegrenzt)
+    llm_daily_limit: int = field(default_factory=lambda: _int("LLM_DAILY_LIMIT", 200))
     digest_interval_minutes: int = field(default_factory=lambda: _int("DIGEST_INTERVAL_MINUTES", 60))
+    category_digest_interval_minutes: int = field(
+        default_factory=lambda: _int("CATEGORY_DIGEST_INTERVAL_MINUTES", 180)
+    )
     weekly_digest_interval_minutes: int = field(
         default_factory=lambda: _int("WEEKLY_DIGEST_INTERVAL_MINUTES", 360)
     )

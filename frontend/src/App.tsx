@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, HashRouter, Route, Routes, useLocation } from "react-router-dom";
+import { IS_STATIC } from "./api";
 import { PlayerBar, PlayerProvider } from "./audio/player";
 import { CategoryNav } from "./components/CategoryNav";
 import { Header } from "./components/Header";
@@ -36,13 +37,16 @@ function Layout() {
   );
 }
 
+// GitHub Pages kennt keine Weiterleitung auf index.html – dort werden Hash-Links (#/meldung/1) genutzt
+const Router = IS_STATIC ? HashRouter : BrowserRouter;
+
 export default function App() {
   return (
     <AppProvider>
       <PlayerProvider>
-        <BrowserRouter>
+        <Router>
           <Layout />
-        </BrowserRouter>
+        </Router>
       </PlayerProvider>
     </AppProvider>
   );

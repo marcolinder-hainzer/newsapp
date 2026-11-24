@@ -320,7 +320,14 @@ def summarize_pending(db: Database, sources: dict[str, dict], llm: LLMClient, se
     pending.sort(key=lambda r: importance(r, now), reverse=True)
 
     stats = {"llm": 0, "extractive": 0}
-    llm_budget = settings.summaries_per_cycle if llm.enabled else 0
+    llm_budget = 0
+    usage = db.get_meta("llm_daily", {}) or {}
+    today = now.strftime("%Y-%m-%d")
+    used_today = usage.get("count", 0) if usage.get("date") == today else 0
+    if llm.enabled:
+        llm_budget = settings.summaries_per_cycle
+        if settings.llm_daily_limit > 0:  # Kostenbremse: höchstens so viele KI-Zusammenfassungen pro Tag
+            llm_budget = max(0, min(llm_budget, settings.llm_daily_limit - used_today))
     llm_jobs: list[int] = []
     for story in pending:
         if llm_budget > 0:
@@ -336,6 +343,7 @@ def summarize_pending(db: Database, sources: dict[str, dict], llm: LLMClient, se
 
     # KI-Zusammenfassungen parallel erstellen (die wichtigsten Meldungen zuerst)
     if llm_jobs:
+        db.set_meta("llm_daily", {"date": today, "count": used_today + len(llm_jobs)})
         with ThreadPoolExecutor(max_workers=max(1, settings.llm_concurrency)) as pool:
             for status in pool.map(lambda sid: summarize_story(db, sid, sources, llm, settings, use_llm=True), llm_jobs):
                 if status in stats:

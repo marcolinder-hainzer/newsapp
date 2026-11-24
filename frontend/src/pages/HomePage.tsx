@@ -7,6 +7,7 @@ import { DigestCard } from "../components/DigestCard";
 import { FilterBar, useFilters } from "../components/FilterBar";
 import { ErrorState, SkeletonCards } from "../components/States";
 import { StoryCard } from "../components/StoryCard";
+import { timeAgo } from "../i18n";
 import { useApp, useCategoryName } from "../settings";
 import type { Digest, StoryItem } from "../types";
 
@@ -114,6 +115,7 @@ export function HomePage() {
 
       {meta && (
         <p className="muted small stats-line">
+          {meta.last_update && <>{t.updated} {timeAgo(meta.last_update, t)} · </>}
           {t.stats(meta.stats.stories_24h, meta.stats.articles_24h, meta.stats.sources)}
           {meta.cycle_running && <> · {t.updating}</>}
         </p>

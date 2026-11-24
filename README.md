@@ -28,9 +28,40 @@ Meldungen aus über 50 Medien (Deutschland, Österreich, Schweiz und internation
 - **Ausrichtung der Berichterstattung** – Balken links/Mitte/rechts und Liste aller Originalartikel.
 - **Installierbar als App** (PWA) auf iPhone, Android und Desktop; heller und dunkler Modus.
 
-## Schnellstart
+## Veröffentlichen über GitHub Pages (empfohlen)
 
-### Mit Docker (empfohlen)
+So ist die App – wie eine normale App – von überall erreichbar, ohne eigenen Server:
+`https://<benutzername>.github.io/<repository>/`
+
+Eine GitHub Action ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)) läuft alle 15 Minuten,
+holt die neuesten Nachrichten, erstellt Zusammenfassungen und Briefings und veröffentlicht alles als
+statische Seite. Der Datenstand wird zwischen den Läufen im Actions-Zwischenspeicher aufbewahrt.
+
+**Einmalig einrichten** (im Repository auf github.com):
+
+1. **Settings → Pages → Build and deployment → Source: „GitHub Actions“** wählen.
+2. **Settings → Secrets and variables → Actions → New repository secret:**
+   Name `ANTHROPIC_API_KEY`, Wert: dein API-Schlüssel von <https://console.anthropic.com>.
+   (Ohne Schlüssel läuft die App auch, zeigt dann aber nur Auszüge in der Originalsprache.)
+3. Optional unter **Variables**: `LLM_MODEL`, `LLM_DAILY_LIMIT`, `SUMMARIES_PER_CYCLE` (siehe unten).
+4. **Actions → „Nachrichten aktualisieren“ → Run workflow** – nach 3–5 Minuten ist die Seite online.
+   Danach aktualisiert sie sich automatisch.
+
+Auf dem Handy die Adresse öffnen und **„Zum Home-Bildschirm“** wählen (iOS: Teilen-Menü, Android: ⋮).
+
+Hinweise:
+- Vorgelesen wird auf GitHub Pages mit den Stimmen des Geräts (eine Webseite ohne Server kann keine
+  API-Schlüssel für Premium-Stimmen geheim halten). iPhone/iPad: unter *Einstellungen → Bedienungshilfen →
+  Gesprochene Inhalte → Stimmen → Deutsch* lassen sich besonders natürliche Stimmen („Erweitert“/„Premium“)
+  laden, z. B. Anna und Markus. Android: „Sprachausgabe“-Einstellungen von Google.
+- KI-Zusammenfassungen werden vorab für die wichtigsten Meldungen erstellt (Kostenbremse `LLM_DAILY_LIMIT`).
+  Eine Zusammenfassung auf Knopfdruck gibt es nur mit eigenem Server.
+- GitHub deaktiviert zeitgesteuerte Workflows in öffentlichen Repositories nach 60 Tagen ohne Aktivität
+  (Commits). GitHub schickt vorher eine E-Mail; reaktivieren geht mit einem Klick unter *Actions*.
+
+## Eigener Server
+
+### Mit Docker
 
 ```bash
 cp .env.example .env        # Schlüssel eintragen (siehe unten)
@@ -54,11 +85,8 @@ cp .env.example .env && set -a && source .env && set +a
 cd backend && uvicorn app.server:app --port 8000
 ```
 
-### Als App aufs Handy
-
-Öffne die Adresse im Browser des Handys und wähle **„Zum Home-Bildschirm“** (iOS: Teilen-Menü,
-Android: Menü ⋮). Damit das Handy den Server erreicht, muss er im selben Netz laufen oder im Internet
-erreichbar sein (z. B. auf einem kleinen Server oder Raspberry Pi).
+Mit eigenem Server stehen zusätzlich Premium-Stimmen (Azure, OpenAI, ElevenLabs) und
+KI-Zusammenfassungen auf Knopfdruck für jede Meldung zur Verfügung.
 
 ## Konfiguration
 
@@ -71,12 +99,23 @@ Alle Einstellungen erfolgen über Umgebungsvariablen – siehe [`.env.example`](
 | `ANTHROPIC_API_KEY` | API-Schlüssel von <https://console.anthropic.com>. Ohne Schlüssel zeigt die App automatische Auszüge in der Originalsprache (keine Übersetzung). |
 | `LLM_MODEL` | Standard `claude-opus-5-5`. Günstiger: `claude-sonnet-5-5` oder `claude-haiku-5-5`. |
 | `LLM_EFFORT` | Denktiefe `low` / `medium` / `high` (Standard `medium`). |
-| `SUMMARIES_PER_CYCLE` | Wie viele Meldungen pro Durchlauf per KI zusammengefasst werden – die wichtigsten zuerst (Standard 20). Öffnet man eine Meldung ohne KI-Fassung, wird sie bei Bedarf sofort erstellt. |
-| `DIGEST_INTERVAL_MINUTES` | Wie oft Tages- und Kategorie-Briefings neu geschrieben werden (Standard 60). |
+| `SUMMARIES_PER_CYCLE` | Wie viele Meldungen pro Durchlauf per KI zusammengefasst werden – die wichtigsten zuerst (Standard 20). Mit eigenem Server wird eine fehlende KI-Fassung beim Öffnen einer Meldung sofort erstellt. |
+| `LLM_DAILY_LIMIT` | Kostenbremse: höchstens so viele KI-Zusammenfassungen pro Tag (Standard 200, `0` = unbegrenzt). |
+| `DIGEST_INTERVAL_MINUTES` | Wie oft die Top-Meldungen des Tages neu geschrieben werden (Standard 60). |
+| `CATEGORY_DIGEST_INTERVAL_MINUTES` | Wie oft die Kategorie-Briefings neu geschrieben werden (Standard 180). |
 
-**Kosten:** Pro Meldung fällt ein Aufruf an, pro Briefing ebenfalls einer. Die Kosten hängen stark vom
-gewählten Modell ab – mit `SUMMARIES_PER_CYCLE`, `REFRESH_INTERVAL_MINUTES` und `LLM_MODEL` lässt
-sich das gut steuern. Den Verbrauch zeigt `GET /api/status` (`llm_usage`).
+**Kosten (grobe Schätzung pro Tag, bei Standard-Einstellungen):** pro Meldung und pro Briefing fällt je
+ein KI-Aufruf an; mit 200 Zusammenfassungen und rund 110 Briefings pro Tag:
+
+| `LLM_MODEL` | ca. pro Tag | ca. pro Monat |
+|---|---|---|
+| `claude-opus-5-5` (Standard, beste Qualität) | 10–17 $ | 300–500 $ |
+| `claude-sonnet-5-5` | 5–8 $ | 150–250 $ |
+| `claude-haiku-5-5` (günstigste) | 0,25–0,50 $ | 8–15 $ |
+
+Mit `LLM_DAILY_LIMIT` begrenzt du die Zahl der Zusammenfassungen. Im Anthropic-Konto lässt sich
+zusätzlich ein monatliches Ausgabenlimit festlegen. Den Verbrauch zeigt `GET /api/status` (`llm_usage`)
+bzw. das Protokoll der GitHub Action.
 
 ### Sprachausgabe
 

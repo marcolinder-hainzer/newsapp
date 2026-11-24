@@ -7,7 +7,6 @@ import os
 import threading
 import time
 from contextlib import asynccontextmanager
-from datetime import timedelta
 from pathlib import Path
 
 import httpx
@@ -16,17 +15,15 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import categories, digests, stories, summarize
+from . import categories, digests, stories, summarize, views
 from .config import Settings, settings as default_settings
-from .db import Database, iso, loads, utcnow
+from .db import Database
 from .llm import LLMClient
 from .pipeline import Pipeline
 from .tts import TTSError, TTSService
+from .views import APP_NAME, APP_VERSION
 
 log = logging.getLogger(__name__)
-
-APP_NAME = "Weitblick"
-APP_VERSION = "1.0.0"
 
 
 class RateLimiter:
@@ -86,23 +83,8 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
 
     @app.get("/api/meta")
     def meta():
-        since = iso(utcnow() - timedelta(hours=24))
-        with db.connect() as conn:
-            story_count = conn.execute("SELECT COUNT(*) FROM stories WHERE last_updated >= ?", (since,)).fetchone()[0]
-            article_count = conn.execute("SELECT COUNT(*) FROM articles WHERE published_at >= ?", (since,)).fetchone()[0]
-        countries = sorted({s.get("country") for s in pipeline.sources.values() if s.get("country")})
-        return {
-            "app": {"name": APP_NAME, "version": APP_VERSION},
-            "categories": categories.CATEGORIES,
-            "countries": countries,
-            "llm": {"enabled": llm.enabled, "model": llm.model if llm.enabled else None},
-            "tts": tts.info(),
-            "last_update": db.get_meta("last_update"),
-            "cycle_running": pipeline.running,
-            "refresh_interval_minutes": settings.refresh_interval_minutes,
-            "stats": {"stories_24h": story_count, "articles_24h": article_count,
-                      "sources": len(pipeline.sources)},
-        }
+        return views.meta_payload(db, pipeline.sources, llm, tts.info(), settings.refresh_interval_minutes,
+                                  running=pipeline.running)
 
     @app.get("/api/status")
     def status():
@@ -151,23 +133,8 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
         story = stories.get_story(db, story_id)
         if not story:
             raise HTTPException(404, "Meldung nicht gefunden")
-        item = stories.serialize_many(db, [story], pipeline.sources)[0]
-        summary = loads(story.get("summary_json"), {}) or {}
-        trust = loads(story.get("trust_json"), {}) or {}
-        item.update({
-            "summary": {
-                "generated_by": summary.get("generated_by"),
-                "model": summary.get("model"),
-                "generated_at": summary.get("generated_at"),
-                "de": summary.get("de") or {"available": False},
-                "en": summary.get("en") or {"available": False},
-            },
-            "trust": {**trust, "score": story.get("trust_score") or 0},
-            "articles": stories.story_articles(db, story_id, pipeline.sources),
-            "speech": {lang: dict(zip(("text", "lang"), stories.story_speech(story, lang))) for lang in ("de", "en")},
-            "can_generate_summary": llm.enabled and summarize.is_stale(story),
-        })
-        return item
+        return views.story_detail_payload(db, story, pipeline.sources,
+                                          can_generate=llm.enabled and summarize.is_stale(story))
 
     @app.get("/api/stories/{story_id}")
     def story_detail(story_id: int):
@@ -193,12 +160,7 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
     def _digest_or_404(scope: str) -> dict:
         if scope not in digests.all_scopes():
             raise HTTPException(404, "Unbekannter Bereich")
-        digest = digests.get_digest(db, scope, pipeline.sources)
-        if digest is None:
-            digests.generate_digest(db, scope, llm, use_llm=False)
-            digest = digests.get_digest(db, scope, pipeline.sources)
-        digest["speech"] = {lang: digests.digest_speech(digest, lang) for lang in ("de", "en")}
-        return digest
+        return views.digest_payload(db, scope, pipeline.sources, llm)
 
     @app.get("/api/digest")
     def digest(scope: str = "top:day"):
@@ -217,24 +179,7 @@ def create_app(settings: Settings | None = None, llm: LLMClient | None = None,
     # ------------------------------------------------------------------
     @app.get("/api/sources")
     def list_sources():
-        since = iso(utcnow() - timedelta(hours=24))
-        with db.connect() as conn:
-            counts = {r["source_id"]: r["n"] for r in conn.execute(
-                "SELECT source_id, COUNT(*) AS n FROM articles WHERE published_at >= ? GROUP BY source_id",
-                (since,)).fetchall()}
-            feed_rows = conn.execute("SELECT source_id, last_status FROM feeds").fetchall()
-        feed_status: dict[str, dict] = {}
-        for r in feed_rows:
-            st = feed_status.setdefault(r["source_id"], {"feeds": 0, "errors": 0})
-            st["feeds"] += 1
-            st["errors"] += 1 if r["last_status"] == "error" else 0
-        out = []
-        for src in sorted(pipeline.sources.values(), key=lambda s: (s.get("language") != "de", s["name"].lower())):
-            item = stories.public_source(src)
-            item["articles_24h"] = counts.get(src["id"], 0)
-            item.update(feed_status.get(src["id"], {"feeds": 0, "errors": 0}))
-            out.append(item)
-        return {"items": out}
+        return views.sources_payload(db, pipeline.sources)
 
     # ------------------------------------------------------------------
     # Sprachausgabe

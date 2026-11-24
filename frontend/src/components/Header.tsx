@@ -11,7 +11,7 @@ export function Header() {
     <header className="app-header">
       <div className="header-inner">
         <Link to="/" className="brand" aria-label="Weitblick">
-          <img src="/icon.svg" alt="" width={30} height={30} />
+          <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" width={30} height={30} />
           <span className="brand-text">
             <strong>Weitblick</strong>
             <small>{t.tagline}</small>
