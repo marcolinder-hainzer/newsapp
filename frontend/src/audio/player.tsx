@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { LoaderCircle, Pause, Play, SkipBack, SkipForward, X } from "lucide-react";
 import { useApp } from "../settings";
 import type { Lang } from "../types";
+import { NaturalSpeaker, naturalSupported } from "./natural";
 import { DeviceSpeaker } from "./speech";
 
 /** Ein Vorlese-Titel. Vorgelesen wird kostenlos mit den Stimmen des Geräts. */
@@ -23,6 +24,10 @@ interface PlayerValue {
   status: Status;
   current: Track | null;
   progress: number; // 0..1
+  /** Download-Fortschritt der Stimme (0..1) oder null */
+  loadingVoice: number | null;
+  /** tatsächlich verwendete Stimmen-Art */
+  engine: "natural" | "device";
   play: (tracks: Track[], start?: number) => void;
   toggle: () => void;
   stop: () => void;
@@ -45,9 +50,15 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [index, setIndex] = useState(0);
   const [status, setStatus] = useState<Status>("idle");
   const [progress, setProgress] = useState(0);
+  const [loadingVoice, setLoadingVoice] = useState<number | null>(null);
+  const [engine, setEngine] = useState<"natural" | "device">("natural");
 
   const speakerRef = useRef<DeviceSpeaker | null>(null);
   if (!speakerRef.current) speakerRef.current = new DeviceSpeaker();
+  const naturalRef = useRef<NaturalSpeaker | null>(null);
+  if (!naturalRef.current && naturalSupported()) naturalRef.current = new NaturalSpeaker();
+  const naturalFailedRef = useRef(false);
+  const engineRef = useRef<"natural" | "device">("natural");
   const stateRef = useRef({ queue, index, status });
   stateRef.current = { queue, index, status };
   const settingsRef = useRef(settings);
@@ -55,11 +66,19 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const attemptRef = useRef(0);
   const advanceRef = useRef<() => void>(() => {});
 
-  const startTrack = useCallback(async (track: Track) => {
+  const startTrack = useCallback(async (track: Track, forceDevice = false) => {
     const attempt = ++attemptRef.current;
-    const speaker = speakerRef.current!;
-    speaker.stop();
+    const device = speakerRef.current!;
+    const natural = naturalRef.current;
+    const s0 = settingsRef.current;
+    const useNatural = !forceDevice && !!natural && s0.voiceEngine === "natural" && !naturalFailedRef.current;
+    device.stop();
+    natural?.stop();
+    if (useNatural) natural!.unlock(); // noch im Klick: Audio auf iPhone/iPad freischalten
+    engineRef.current = useNatural ? "natural" : "device";
+    setEngine(engineRef.current);
     setProgress(0);
+    setLoadingVoice(null);
     setStatus("loading");
     let speech = { text: track.title, lang: track.lang };
     try {
@@ -69,9 +88,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }
     if (attempt !== attemptRef.current) return; // inzwischen anderer Titel gewählt
     const s = settingsRef.current;
-    speaker.rate = s.rate;
+    if (useNatural) {
+      natural!.rate = s.rate;
+      await natural!.start(speech.text, speech.lang, s.voice);
+      return;
+    }
+    device.rate = s.rate;
     setStatus("playing");
-    await speaker.start(speech.text, speech.lang, s.voice, s.deviceVoices[`${speech.lang}-${s.voice}`]);
+    await device.start(speech.text, speech.lang, s.voice, s.deviceVoices[`${speech.lang}-${s.voice}`]);
   }, []);
 
   useEffect(() => {
@@ -79,13 +103,32 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     speaker.onEnd = () => advanceRef.current();
     speaker.onProgress = (i, total) => setProgress(total ? i / total : 0);
     speaker.onError = () => advanceRef.current();
-  }, []);
+    const natural = naturalRef.current;
+    if (natural) {
+      natural.onEnd = () => advanceRef.current();
+      natural.onProgress = (i, total) => {
+        setProgress(total ? i / total : 0);
+        setStatus((st) => (st === "paused" ? st : "playing"));
+      };
+      natural.onLoading = (fraction) => setLoadingVoice(fraction);
+      natural.onError = (message) => {
+        // Natürliche Stimme nicht verfügbar (z. B. offline) → Gerätestimme verwenden
+        console.warn("Natürliche Stimme nicht verfügbar:", message);
+        naturalFailedRef.current = true;
+        setLoadingVoice(null);
+        const { queue: q, index: i } = stateRef.current;
+        if (q[i]) startTrack(q[i], true);
+      };
+    }
+  }, [startTrack]);
 
   const goTo = useCallback((i: number, q?: Track[]) => {
     const list = q ?? stateRef.current.queue;
     if (i < 0 || i >= list.length) {
       attemptRef.current++;
       speakerRef.current?.stop();
+      naturalRef.current?.stop();
+      setLoadingVoice(null);
       setStatus("idle");
       setQueue([]);
       setIndex(0);
@@ -105,7 +148,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, [goTo]);
 
   const toggle = useCallback(() => {
-    const speaker = speakerRef.current!;
+    const speaker = engineRef.current === "natural" && naturalRef.current ? naturalRef.current : speakerRef.current!;
     const st = stateRef.current.status;
     if (st === "playing" || st === "loading") {
       speaker.pause();
@@ -123,7 +166,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Tempo live übernehmen (gilt ab dem nächsten Satz)
   useEffect(() => {
     if (speakerRef.current) speakerRef.current.rate = settings.rate;
+    naturalRef.current?.setRate(settings.rate);
   }, [settings.rate]);
+
+  // Wechsel zwischen natürlicher Stimme und Gerätestimme: erneut versuchen erlauben
+  useEffect(() => {
+    naturalFailedRef.current = false;
+  }, [settings.voiceEngine]);
 
   // Stimmenwechsel während der Wiedergabe: aktuellen Titel mit neuer Stimme neu starten
   const voiceRef = useRef(settings.voice);
@@ -152,9 +201,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, [current, toggle, next, previous, stop]);
 
   const value = useMemo<PlayerValue>(() => ({
-    queue, index, status, current, progress, play, toggle, stop, next, previous,
+    queue, index, status, current, progress, loadingVoice, engine, play, toggle, stop, next, previous,
     isCurrent: (key: string) => !!current && current.key === key && status !== "idle",
-  }), [queue, index, status, current, progress, play, toggle, stop, next, previous]);
+  }), [queue, index, status, current, progress, loadingVoice, engine, play, toggle, stop, next, previous]);
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
 }
@@ -184,7 +233,9 @@ export function PlayerBar() {
         </button>
         <div className="player-title">
           <span className="player-kicker">
-            {t.nowPlaying}
+            {player.loadingVoice !== null
+              ? `${t.loadingVoice}${player.loadingVoice > 0 ? ` ${Math.round(player.loadingVoice * 100)} %` : ""}`
+              : t.nowPlaying}
             {queue.length > 1 && ` · ${index + 1}/${queue.length}`}
           </span>
           {current.href ? <Link to={current.href}>{current.title}</Link> : <span>{current.title}</span>}

@@ -24,8 +24,9 @@ Die App läuft komplett auf GitHub – ohne Server, ohne Abo, ohne API-Schlüsse
   berichtenden Medien plus „So berichten weitere Medien“. Fehlt eine Sprache, wird kostenlos mit den
   Open-Source-Modellen **OPUS-MT** übersetzt.
 - **Briefings** – das Wichtigste je Kategorie sowie die Top-Meldungen **des Tages** und **der Woche**.
-- **Vorlesen** – jede Meldung und jedes Briefing, wahlweise mit **Damen- oder Herrenstimme**, mit
-  einstellbarem Tempo, „Alle anhören“ und Steuerung über den Sperrbildschirm.
+- **Vorlesen mit natürlichen Stimmen** – jede Meldung und jedes Briefing, wahlweise mit **Damen- oder
+  Herrenstimme** (Deutsch: Kerstin/Thorsten, Englisch: Lessac/Ryan). Die neuronalen Open-Source-Stimmen
+  (Piper) werden direkt auf dem Gerät erzeugt; einstellbares Tempo, „Alle anhören“, Sperrbildschirm-Steuerung.
 - **Vertrauens-Score (0–100)** für jede Meldung – mit nachvollziehbarer Aufschlüsselung.
 - **Ausrichtung der Berichterstattung** – Balken links/Mitte/rechts und Liste aller Originalartikel.
 - **Installierbar als App** (PWA) auf iPhone, Android und Desktop; heller und dunkler Modus.
@@ -41,7 +42,7 @@ Die App läuft komplett auf GitHub – ohne Server, ohne Abo, ohne API-Schlüsse
 | Übersetzung DE ↔ EN | OPUS-MT (Universität Helsinki, Open Source), läuft in der GitHub Action | 0 € |
 | Briefings | automatisch aus den relevantesten Meldungen | 0 € |
 | Vertrauens-Score | Quellenbewertung + Heuristik | 0 € |
-| Vorlesen | Stimmen des eigenen Geräts (Web Speech API) | 0 € |
+| Vorlesen | Piper-Stimmen (Open Source), laufen im Browser des Geräts; alternativ Gerätestimmen | 0 € |
 
 Im Vergleich zu einer Variante mit kostenpflichtiger KI entfallen: frei formulierte KI-Zusammenfassungen,
 der Abschnitt „Warum das wichtig ist“, KI-geschriebene Briefings, die KI-Inhaltsprüfung im
@@ -58,10 +59,10 @@ Hinweise:
 - Beim ersten Lauf werden viele Meldungen auf einmal übersetzt. Pro Lauf wird höchstens 7 Minuten
   übersetzt (die wichtigsten Meldungen zuerst), der Rest folgt in den nächsten Läufen. Bis dahin wird die
   Originalsprache angezeigt.
-- **Schönere Stimmen:** Auf dem iPhone unter *Einstellungen → Bedienungshilfen → Gesprochene Inhalte →
-  Stimmen → Deutsch* die „Premium“-Stimmen laden (z. B. Anna, Markus). Unter Windows klingen die
-  „Natural“-Stimmen in Microsoft Edge besonders gut. In der App lässt sich unter *Einstellungen* für jede
-  Sprache eine Damen- und eine Herrenstimme festlegen.
+- **Stimmen:** Beim ersten Anhören wird die gewählte natürliche Stimme einmalig geladen (ca. 60 MB je
+  Stimme, plus ca. 30 MB Laufzeit) und danach auf dem Gerät gespeichert – am besten im WLAN. Die Modelle
+  stammen aus dem offiziellen Piper-Stimmenarchiv (huggingface.co/rhasspy/piper-voices). Unter
+  *Einstellungen → Art der Stimme* lässt sich alternativ die eingebaute Stimme des Geräts wählen.
 - GitHub pausiert zeitgesteuerte Workflows in öffentlichen Repositories nach 60 Tagen ohne neue Commits
   und schickt vorher eine E-Mail; reaktivieren geht mit einem Klick unter *Actions*.
 
@@ -85,6 +86,9 @@ RSS-Feeds ──► Abruf ──► Gruppierung zu Meldungen ──► Kennzahle
 4. **Zusammenfassungen** (`summarize.py`): Überschrift des zuverlässigsten Mediums, die zentralen Sätze
    aus den Teasern aller Quellen und die Schlagzeilen weiterer Medien.
 5. **Übersetzung** (`translate.py`): OPUS-MT de→en / en→de, mit Zwischenspeicher und Zeitbudget.
+7. **Vorlesen** (`frontend/public/piper-worker.js`, `frontend/src/audio/natural.ts`): Piper im Browser –
+   espeak-ng (WebAssembly) erzeugt die Lautschrift, onnxruntime-web das Stimmmodell. Der Workflow
+   „Stimmen prüfen“ testet alle Stimmen in Chromium und WebKit (Safari).
 6. **Briefings** (`digests.py`) und **Export** (`static_export.py`) als JSON für das Frontend.
 
 ### Vertrauens-Score

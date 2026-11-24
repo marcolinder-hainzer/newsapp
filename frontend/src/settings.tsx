@@ -4,12 +4,15 @@ import { dictionaries, type Dict } from "./i18n";
 import type { Lang, Meta, Voice } from "./types";
 
 export type Theme = "system" | "light" | "dark";
+export type VoiceEngine = "natural" | "device";
 
 export interface Settings {
   lang: Lang;
   theme: Theme;
   voice: Voice;
   rate: number;
+  /** natürliche Open-Source-Stimmen (Piper) oder Stimmen des Geräts */
+  voiceEngine: VoiceEngine;
   /** Optional manuell gewählte Gerätestimmen, Schlüssel z. B. "de-female" → voiceURI */
   deviceVoices: Record<string, string>;
 }
@@ -19,6 +22,7 @@ const DEFAULTS: Settings = {
   theme: "system",
   voice: "female",
   rate: 1,
+  voiceEngine: "natural",
   deviceVoices: {},
 };
 

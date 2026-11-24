@@ -151,6 +151,15 @@ const de = {
   refreshNow: "Jetzt aktualisieren",
   updating: "Aktualisierung läuft …",
   nowPlaying: "Wird vorgelesen",
+  loadingVoice: "Stimme wird geladen …",
+  voiceEngine: "Art der Stimme",
+  engineNatural: "Natürliche Stimmen",
+  engineDevice: "Stimmen des Geräts",
+  engineNaturalHint:
+    "Natürlich klingende Open-Source-Stimmen (Piper), die direkt auf deinem Gerät erzeugt werden – kostenlos. Beim ersten Anhören wird die gewählte Stimme einmalig geladen (ca. 60 MB) und danach gespeichert.",
+  engineDeviceHint: "Nutzt die eingebauten Stimmen deines Geräts – ohne Download, klingt aber oft künstlicher.",
+  noMaleDeviceVoice: (lang: string) =>
+    `Auf diesem Gerät gibt es keine Herrenstimme für ${lang} – dafür wird die Damenstimme verwendet. Mit „Natürliche Stimmen“ steht immer eine Herrenstimme zur Verfügung.`,
   footerNote: "Zusammenfassungen werden automatisch erstellt – die Originalartikel sind jeweils verlinkt.",
 };
 
@@ -306,6 +315,15 @@ const en: Dict = {
   refreshNow: "Refresh now",
   updating: "Updating …",
   nowPlaying: "Now playing",
+  loadingVoice: "Loading voice …",
+  voiceEngine: "Voice type",
+  engineNatural: "Natural voices",
+  engineDevice: "Device voices",
+  engineNaturalHint:
+    "Natural-sounding open-source voices (Piper) generated right on your device – free of charge. The selected voice is downloaded once on first use (about 60 MB) and then stored.",
+  engineDeviceHint: "Uses your device's built-in voices – no download, but often sounds more artificial.",
+  noMaleDeviceVoice: (lang) =>
+    `This device has no male voice for ${lang}, so the female voice is used. With “Natural voices” a male voice is always available.`,
   footerNote: "Summaries are generated automatically – the original articles are always linked.",
 };
 

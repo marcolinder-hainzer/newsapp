@@ -4,12 +4,17 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "copy-vendor": "node scripts/copy-vendor.mjs",
+    "predev": "node scripts/copy-vendor.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/copy-vendor.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@diffusionstudio/piper-wasm": "1.0.0",
     "lucide-react": "^1.78.0",
+    "onnxruntime-web": "1.31.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.6"
