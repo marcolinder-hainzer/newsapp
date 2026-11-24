@@ -222,7 +222,7 @@ def extractive_summary(articles: list[dict], sources: dict[str, dict]) -> dict:
         if not in_lang:
             result[lang] = {"available": False}
             continue
-        texts = [a.get("description") or "" for a in in_lang] + [a.get("content", "")[:1500] for a in in_lang[:2]]
+        texts = [a.get("description") or "" for a in in_lang] + [(a.get("content") or "")[:1500] for a in in_lang[:2]]
         sentences = _centroid_sentences([t for t in texts if t], lang)
         key_points = []
         for a in in_lang[1:]:

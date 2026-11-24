@@ -146,20 +146,12 @@
           "category": "wirtschaft"
         },
         {
-          "url": "https://newsfeed.zeit.de/wissen/index",
-          "category": "wissenschaft"
-        },
-        {
           "url": "https://newsfeed.zeit.de/digital/index",
           "category": "technologie"
         },
         {
           "url": "https://newsfeed.zeit.de/sport/index",
           "category": "sport"
-        },
-        {
-          "url": "https://newsfeed.zeit.de/kultur/index",
-          "category": "kultur"
         }
       ]
     },
@@ -332,24 +324,6 @@
       ]
     },
     {
-      "id": "focus",
-      "name": "FOCUS online",
-      "homepage": "https://www.focus.de",
-      "country": "DE",
-      "language": "de",
-      "bias": "lean_right",
-      "reliability": 68,
-      "ownership": "private",
-      "type": "news",
-      "note": "",
-      "feeds": [
-        {
-          "url": "https://rss.focus.de/fol/XML/rss_folnews.xml",
-          "category": null
-        }
-      ]
-    },
-    {
       "id": "stern",
       "name": "stern",
       "homepage": "https://www.stern.de",
@@ -363,6 +337,24 @@
       "feeds": [
         {
           "url": "https://www.stern.de/feed/standard/alle-nachrichten/",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "tagesspiegel",
+      "name": "Der Tagesspiegel",
+      "homepage": "https://www.tagesspiegel.de",
+      "country": "DE",
+      "language": "de",
+      "bias": "lean_left",
+      "reliability": 84,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.tagesspiegel.de/contentexport/feed/home",
           "category": null
         }
       ]
@@ -634,56 +626,6 @@
       ]
     },
     {
-      "id": "guardian",
-      "name": "The Guardian",
-      "homepage": "https://www.theguardian.com",
-      "country": "GB",
-      "language": "en",
-      "bias": "lean_left",
-      "reliability": 83,
-      "ownership": "trust",
-      "type": "news",
-      "note": "",
-      "feeds": [
-        {
-          "url": "https://www.theguardian.com/world/rss",
-          "category": "international"
-        },
-        {
-          "url": "https://www.theguardian.com/uk-news/rss",
-          "category": null
-        },
-        {
-          "url": "https://www.theguardian.com/us-news/rss",
-          "category": null
-        },
-        {
-          "url": "https://www.theguardian.com/business/rss",
-          "category": "wirtschaft"
-        },
-        {
-          "url": "https://www.theguardian.com/technology/rss",
-          "category": "technologie"
-        },
-        {
-          "url": "https://www.theguardian.com/science/rss",
-          "category": "wissenschaft"
-        },
-        {
-          "url": "https://www.theguardian.com/environment/rss",
-          "category": "klima"
-        },
-        {
-          "url": "https://www.theguardian.com/sport/rss",
-          "category": "sport"
-        },
-        {
-          "url": "https://www.theguardian.com/culture/rss",
-          "category": "kultur"
-        }
-      ]
-    },
-    {
       "id": "nyt",
       "name": "The New York Times",
       "homepage": "https://www.nytimes.com",
@@ -751,6 +693,24 @@
       "feeds": [
         {
           "url": "https://feeds.npr.org/1001/rss.xml",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "cbsnews",
+      "name": "CBS News",
+      "homepage": "https://www.cbsnews.com",
+      "country": "US",
+      "language": "en",
+      "bias": "lean_left",
+      "reliability": 82,
+      "ownership": "private",
+      "type": "broadcaster",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.cbsnews.com/latest/rss/main",
           "category": null
         }
       ]
@@ -904,24 +864,6 @@
         {
           "url": "https://www.dailymail.co.uk/news/index.rss",
           "category": null
-        }
-      ]
-    },
-    {
-      "id": "independent",
-      "name": "The Independent",
-      "homepage": "https://www.independent.co.uk",
-      "country": "GB",
-      "language": "en",
-      "bias": "lean_left",
-      "reliability": 76,
-      "ownership": "private",
-      "type": "news",
-      "note": "",
-      "feeds": [
-        {
-          "url": "https://www.independent.co.uk/news/world/rss",
-          "category": "international"
         }
       ]
     },
@@ -1178,24 +1120,6 @@
         {
           "url": "https://www.carbonbrief.org/feed/",
           "category": "klima"
-        }
-      ]
-    },
-    {
-      "id": "espn",
-      "name": "ESPN",
-      "homepage": "https://www.espn.com",
-      "country": "US",
-      "language": "en",
-      "bias": "center",
-      "reliability": 80,
-      "ownership": "private",
-      "type": "specialist",
-      "note": "",
-      "feeds": [
-        {
-          "url": "https://www.espn.com/espn/rss/news",
-          "category": "sport"
         }
       ]
     },

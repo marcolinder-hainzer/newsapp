@@ -48,6 +48,14 @@ def test_export_writes_all_files(test_settings, feed_transport, tmp_path):
         assert conn.execute("SELECT COUNT(*) FROM articles WHERE content IS NOT NULL").fetchone()[0] == 0
         assert conn.execute("SELECT COUNT(*) FROM stories").fetchone()[0] == stats["stories"]
 
+    # Nächster Lauf nach dem Verkleinern: Auszüge müssen ohne Volltext funktionieren (Regression)
+    from app.summarize import summarize_story
+    assert summarize_story(db, rail["id"], pipeline.sources, llm, test_settings, use_llm=False) == "extractive"
+    with db.write() as conn:
+        conn.execute("UPDATE stories SET summary_article_count = 0")
+    result = pipeline.run_cycle(fetch=False)
+    assert "error" not in result, result
+
 
 def test_daily_llm_limit(test_settings, feed_transport):
     from tests.test_llm import FakeLLM

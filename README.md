@@ -12,7 +12,7 @@ Meldungen aus über 50 Medien (Deutschland, Österreich, Schweiz und internation
 
 ## Funktionen
 
-- **Immer aktuell** – alle 15 Minuten werden 115 RSS-Feeds abgerufen (konfigurierbar). Neue Meldungen
+- **Immer aktuell** – alle 15 Minuten werden rund 100 RSS-Feeds abgerufen (konfigurierbar). Neue Meldungen
   erscheinen sofort, die App weist auf neue Inhalte hin.
 - **Kategorien & Filter** – Politik, International, Wirtschaft, Technologie, Wissenschaft, Gesundheit,
   Klima & Umwelt, Sport, Kultur, Panorama. Filter nach Zeitraum, Sprache und Land der Quellen,

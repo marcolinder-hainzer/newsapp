@@ -162,6 +162,8 @@ def fetch_feed(client: httpx.Client, feed: dict, source: dict, now: datetime, ma
               "last_modified": feed.get("last_modified")}
     try:
         response = client.get(feed["url"], headers=headers)
+        if response.status_code == 406:  # manche Server lehnen den Feed-Accept-Header ab
+            response = client.get(feed["url"], headers={**headers, "Accept": "*/*"})
         if response.status_code == 304:
             result["status"] = "not_modified"
             return result
