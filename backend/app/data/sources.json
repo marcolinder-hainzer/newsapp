@@ -1070,24 +1070,6 @@
       ]
     },
     {
-      "id": "newscientist",
-      "name": "New Scientist",
-      "homepage": "https://www.newscientist.com",
-      "country": "GB",
-      "language": "en",
-      "bias": "center",
-      "reliability": 86,
-      "ownership": "private",
-      "type": "specialist",
-      "note": "",
-      "feeds": [
-        {
-          "url": "https://www.newscientist.com/feed/home/",
-          "category": "wissenschaft"
-        }
-      ]
-    },
-    {
       "id": "statnews",
       "name": "STAT",
       "homepage": "https://www.statnews.com",
