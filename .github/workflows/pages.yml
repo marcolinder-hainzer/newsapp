@@ -46,9 +46,9 @@ jobs:
       # Höchstens so lange pro Lauf übersetzen; der Rest folgt im nächsten Lauf
       TRANSLATION_TIME_BUDGET_SECONDS: "420"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -62,13 +62,13 @@ jobs:
 
       - name: Übersetzungsmodelle laden (Zwischenspeicher)
         id: models
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .hf-cache
           key: opus-mt-de-en-v1
 
       - name: Letzten Datenstand laden
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: state
           key: weitblick-state-${{ github.run_id }}
@@ -79,14 +79,14 @@ jobs:
         run: python -m app.static_export --out ../site-data --compact-db
 
       - name: Datenstand speichern
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: state
           key: weitblick-state-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Übersetzungsmodelle speichern
         if: steps.models.outputs.cache-hit != 'true' && hashFiles('.hf-cache/**') != ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .hf-cache
           key: opus-mt-de-en-v1
@@ -101,9 +101,9 @@ jobs:
 
       - name: GitHub Pages vorbereiten
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -119,10 +119,10 @@ jobs:
           npm run build
           cp -r ../site-data dist/data
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: frontend/dist
 
       - name: Veröffentlichen
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
