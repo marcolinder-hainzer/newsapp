@@ -76,7 +76,7 @@ jobs:
 
       - name: Nachrichten abrufen, zusammenfassen, übersetzen und exportieren
         working-directory: backend
-        run: python -m app.static_export --out ../site-data --compact-db
+        run: python -m app.static_export --out ../site-data --compact-db --report ../run-report.txt
 
       - name: Datenstand speichern
         uses: actions/cache/save@v5
@@ -126,3 +126,7 @@ jobs:
       - name: Veröffentlichen
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Bericht
+        if: always()
+        run: cat run-report.txt 2>/dev/null || echo "Kein Bericht vorhanden"

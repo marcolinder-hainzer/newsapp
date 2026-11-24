@@ -128,11 +128,51 @@ def compact_database(db: Database, settings: Settings) -> None:
     raw.close()
 
 
+def run_report(db: Database, result: dict, translator: Translator, stats: dict) -> str:
+    """Kurzer Bericht für das Protokoll der GitHub Action (Statistik + Beispiel-Übersetzungen)."""
+    since = iso(utcnow() - timedelta(hours=RECENT_HOURS))
+    with db.connect() as conn:
+        rows = [dict(r) for r in conn.execute(
+            "SELECT summary_json, source_count, coverage, trust_score, first_seen, last_updated FROM stories "
+            "WHERE last_updated >= ?", (since,)).fetchall()]
+    both = pending = 0
+    samples: dict[str, list[tuple[float, str, str]]] = {"de": [], "en": []}
+    now = utcnow()
+    for r in rows:
+        summary = json.loads(r["summary_json"] or "{}")
+        de, en = summary.get("de") or {}, summary.get("en") or {}
+        if de.get("available") and en.get("available"):
+            both += 1
+        if summary.get("translation_pending"):
+            pending += 1
+        for target, part, other in (("en", en, de), ("de", de, en)):
+            if part.get("machine_translated"):
+                samples[target].append((stories.importance(r, now), other.get("title", ""), part.get("title", "")))
+    lines = [
+        "=== Weitblick – Bericht ===",
+        f"Feeds: {result.get('fetch')}",
+        f"Zusammenfassungen/Übersetzung: {result.get('summaries')}",
+        f"Zusammengeführte Meldungen: {result.get('merged')}",
+        f"Export: {stats}",
+        f"Meldungen (48 Std.): {len(rows)}, davon zweisprachig: {both}, Übersetzung ausstehend: {pending}",
+        f"Übersetzung: {'aktiv' if translator.available else 'nicht verfügbar'}",
+    ]
+    for target, label in (("en", "DE → EN"), ("de", "EN → DE")):
+        top = sorted(samples[target], reverse=True)[:5]
+        if top:
+            lines.append(f"Beispiele {label}:")
+            lines.extend(f"  • {src}  →  {dst}" for _, src, dst in top)
+    if result.get("error"):
+        lines.append(f"FEHLER im Durchlauf: {result['error']}")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Statischen Export für GitHub Pages erzeugen")
     parser.add_argument("--out", required=True, help="Zielverzeichnis für die JSON-Dateien")
     parser.add_argument("--skip-cycle", action="store_true", help="Keinen Abruf durchführen, nur exportieren")
     parser.add_argument("--compact-db", action="store_true", help="Datenbank danach verkleinern")
+    parser.add_argument("--report", help="Kurzbericht in diese Datei schreiben")
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -144,11 +184,14 @@ def main(argv: list[str] | None = None) -> int:
     translator = Translator(db, enabled=settings.translation_enabled)
     log.info("Übersetzung: %s", "aktiv (OPUS-MT)" if translator.available else "nicht verfügbar")
     pipeline = Pipeline(settings, db, translator)
+    result: dict = {}
     if not args.skip_cycle:
         result = pipeline.run_cycle()
         log.info("Durchlauf: %s", result)
     stats = export(db, pipeline.sources, translator.info(), settings, Path(args.out))
     log.info("Export abgeschlossen: %s", stats)
+    if args.report:
+        Path(args.report).write_text(run_report(db, result, translator, stats) + "\n", encoding="utf-8")
     if args.compact_db:
         compact_database(db, settings)
     return 0
