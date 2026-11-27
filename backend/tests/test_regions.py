@@ -75,3 +75,23 @@ def test_migration_adds_region_columns(tmp_path):
         assert "region" in {r["name"] for r in c.execute("PRAGMA table_info(feeds)")}
         assert "regions" in {r["name"] for r in c.execute("PRAGMA table_info(stories)")}
         assert c.execute("SELECT dirty FROM stories WHERE id = 1").fetchone()[0] == 1
+
+
+def test_removed_source_is_deleted_on_sync(tmp_path):
+    import json
+
+    from app.sources import source_map, sync_sources
+
+    db = Database(tmp_path / "db.sqlite")
+    feed = lambda u: {"url": u, "category": "politik"}  # noqa: E731
+    base = {"name": "X", "country": "AT", "language": "de", "bias": "center", "reliability": 70}
+    path = tmp_path / "s.json"
+    path.write_text(json.dumps({"sources": [
+        {**base, "id": "bleibt", "feeds": [feed("https://a.test/rss")]},
+        {**base, "id": "weg", "feeds": [feed("https://b.test/rss")]},
+    ]}))
+    sync_sources(db, path)
+    assert set(source_map(db)) == {"bleibt", "weg"}
+    path.write_text(json.dumps({"sources": [{**base, "id": "bleibt", "feeds": [feed("https://a.test/rss")]}]}))
+    sync_sources(db, path)
+    assert set(source_map(db)) == {"bleibt"}

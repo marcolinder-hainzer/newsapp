@@ -70,6 +70,16 @@ def sync_sources(db: Database, path: Path) -> list[dict]:
         if feed_urls:
             placeholders = ",".join("?" * len(feed_urls))
             conn.execute(f"DELETE FROM feeds WHERE url NOT IN ({placeholders})", feed_urls)
+        if sources:
+            # entfernte Quellen löschen, sofern keine Artikel mehr auf sie verweisen
+            ids = [s["id"] for s in sources]
+            placeholders = ",".join("?" * len(ids))
+            conn.execute(
+                f"""DELETE FROM sources WHERE id NOT IN ({placeholders})
+                    AND id NOT IN (SELECT DISTINCT source_id FROM articles)
+                    AND id NOT IN (SELECT DISTINCT source_id FROM feeds)""",
+                ids,
+            )
     return sources
 
 

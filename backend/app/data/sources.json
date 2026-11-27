@@ -690,24 +690,6 @@
       ]
     },
     {
-      "id": "wienerzeitung",
-      "name": "Wiener Zeitung",
-      "homepage": "https://www.wienerzeitung.at",
-      "country": "AT",
-      "language": "de",
-      "bias": "center",
-      "reliability": 85,
-      "ownership": "public",
-      "type": "news",
-      "note": "",
-      "feeds": [
-        {
-          "url": "https://www.wienerzeitung.at/rss",
-          "category": null
-        }
-      ]
-    },
-    {
       "id": "profil",
       "name": "profil",
       "homepage": "https://www.profil.at",
@@ -720,7 +702,7 @@
       "note": "",
       "feeds": [
         {
-          "url": "https://www.profil.at/rss",
+          "url": "https://www.profil.at/xml/rss",
           "category": null
         }
       ]
@@ -738,25 +720,7 @@
       "note": "Boulevardzeitung – häufig zugespitzte Darstellung.",
       "feeds": [
         {
-          "url": "https://www.krone.at/rss",
-          "category": null
-        }
-      ]
-    },
-    {
-      "id": "heute",
-      "name": "Heute",
-      "homepage": "https://www.heute.at",
-      "country": "AT",
-      "language": "de",
-      "bias": "lean_right",
-      "reliability": 48,
-      "ownership": "private",
-      "type": "tabloid",
-      "note": "Gratis-Boulevardzeitung.",
-      "feeds": [
-        {
-          "url": "https://www.heute.at/rss",
+          "url": "https://api.krone.at/v1/rss/rssfeed-google.xml?id=2311992",
           "category": null
         }
       ]

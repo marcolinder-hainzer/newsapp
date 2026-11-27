@@ -15,7 +15,7 @@ Die App läuft komplett auf GitHub – ohne Server, ohne Abo, ohne API-Schlüsse
 
 ## Funktionen
 
-- **Immer aktuell** – alle 15 Minuten werden rund 130 RSS-Feeds von 60 Medien abgerufen.
+- **Immer aktuell** – alle 15 Minuten werden rund 125 RSS-Feeds von 58 Medien abgerufen.
 - **Nur Österreich** – ein Schalter zeigt nur die aktuellsten Themen aus Österreich (erkannt über
   österreichische Medien, die ORF-Bundesländer-Feeds und typische Begriffe wie Nationalrat, ÖVP, Wien …),
   inklusive eigenem Briefing „Das Wichtigste aus Österreich“. In den Einstellungen als Standard wählbar.
