@@ -15,8 +15,11 @@ Die App läuft komplett auf GitHub – ohne Server, ohne Abo, ohne API-Schlüsse
 
 ## Funktionen
 
-- **Immer aktuell** – alle 15 Minuten werden rund 100 RSS-Feeds abgerufen.
-- **Kategorien & Filter** – Politik, International, Wirtschaft, Technologie, Wissenschaft, Gesundheit,
+- **Immer aktuell** – alle 15 Minuten werden rund 130 RSS-Feeds von 60 Medien abgerufen.
+- **Nur Österreich** – ein Schalter zeigt nur die aktuellsten Themen aus Österreich (erkannt über
+  österreichische Medien, die ORF-Bundesländer-Feeds und typische Begriffe wie Nationalrat, ÖVP, Wien …),
+  inklusive eigenem Briefing „Das Wichtigste aus Österreich“. In den Einstellungen als Standard wählbar.
+- **Kategorien & Filter** – Kategorie-Auswahl als Ausklappmenü: Politik, International, Wirtschaft, Technologie, Wissenschaft, Gesundheit,
   Klima & Umwelt, Sport, Kultur, Panorama. Filter nach Zeitraum, Sprache und Land der Quellen,
   politischer Perspektive (ausgewogen, überwiegend links/rechts, „Blindspots“), Mindest-Vertrauen und
   Mindestanzahl an Quellen; Volltextsuche und Sortierung.
@@ -29,7 +32,12 @@ Die App läuft komplett auf GitHub – ohne Server, ohne Abo, ohne API-Schlüsse
   (Piper) werden direkt auf dem Gerät erzeugt; einstellbares Tempo, „Alle anhören“, Sperrbildschirm-Steuerung.
 - **Vertrauens-Score (0–100)** für jede Meldung – mit nachvollziehbarer Aufschlüsselung.
 - **Ausrichtung der Berichterstattung** – Balken links/Mitte/rechts und Liste aller Originalartikel.
-- **Installierbar als App** (PWA) auf iPhone, Android und Desktop; heller und dunkler Modus.
+- **Anpassbar** (Zahnrad oben rechts → Einstellungen): Startseite, Standard-Region und -Filter,
+  Akzentfarbe, Ecken, Kartenstil, Schriftgröße, Abstände, Kachel- oder Listenansicht, welche Elemente
+  die Karten zeigen, Reihenfolge und Sichtbarkeit der Startseiten-Bereiche und Kategorien, einzelne
+  Medien ausblenden, Stimme und Tempo. Alles wird nur im Browser des Geräts gespeichert.
+- **Installierbar als App** (PWA) auf iPhone, Android und Desktop; heller und dunkler Modus;
+  Schnellzugriffe „Nur Österreich“, „Briefing“ und „Einstellungen“ (langes Drücken auf das App-Symbol).
 
 ## Warum ist alles kostenlos?
 
