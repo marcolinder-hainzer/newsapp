@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS feeds (
     last_fetch TEXT,
     last_status TEXT,
     last_error TEXT,
-    new_items INTEGER DEFAULT 0
+    new_items INTEGER DEFAULT 0,
+    region TEXT
 );
 
 CREATE TABLE IF NOT EXISTS articles (
@@ -51,7 +52,8 @@ CREATE TABLE IF NOT EXISTS articles (
     published_at TEXT NOT NULL,
     fetched_at TEXT NOT NULL,
     story_id INTEGER,
-    content_fetched INTEGER DEFAULT 0
+    content_fetched INTEGER DEFAULT 0,
+    region TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_articles_story ON articles(story_id);
 CREATE INDEX IF NOT EXISTS idx_articles_published ON articles(published_at);
@@ -69,6 +71,7 @@ CREATE TABLE IF NOT EXISTS stories (
     source_count INTEGER DEFAULT 0,
     languages TEXT DEFAULT '[]',
     countries TEXT DEFAULT '[]',
+    regions TEXT DEFAULT '[]',
     bias_left INTEGER DEFAULT 0,
     bias_center INTEGER DEFAULT 0,
     bias_right INTEGER DEFAULT 0,
@@ -134,6 +137,22 @@ class Database:
         self._write_lock = threading.RLock()
         with self.connect() as conn:
             conn.executescript(SCHEMA)
+            self._migrate(conn)
+
+    # Spalten, die in späteren Versionen dazukamen (ältere Datenbanken werden ergänzt)
+    MIGRATIONS = [
+        ("feeds", "region", "TEXT"),
+        ("articles", "region", "TEXT"),
+        ("stories", "regions", "TEXT DEFAULT '[]'"),
+    ]
+
+    def _migrate(self, conn: sqlite3.Connection) -> None:
+        for table, column, ddl in self.MIGRATIONS:
+            existing = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+            if column not in existing:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
+                if table == "stories":
+                    conn.execute("UPDATE stories SET dirty = 1")  # Kennzahlen neu berechnen
 
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:

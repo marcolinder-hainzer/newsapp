@@ -13,36 +13,49 @@ export interface Filters {
   perspective: string;
   min_trust: number;
   min_sources: number;
+  /** "all" oder "AT" (nur Themen aus Österreich) */
+  region: string;
 }
 
-const DEFAULT_FILTERS: Filters = {
-  q: "", sort: "relevance", hours: 48, lang: "", country: "", perspective: "all", min_trust: 0, min_sources: 1,
-};
-
+/**
+ * Filter stehen in der Adresse (teilbar, Zurück-Taste funktioniert). Fehlt ein Wert,
+ * gilt der in den Einstellungen gewählte Standard.
+ */
 export function useFilters(): [Filters, (patch: Partial<Filters>) => void, () => void, number] {
   const [params, setParams] = useSearchParams();
+  const { settings } = useApp();
+  const fd = settings.filterDefaults;
+  const defaults: Filters = {
+    q: "", sort: fd.sort, hours: fd.hours, lang: fd.lang, country: "", perspective: fd.perspective,
+    min_trust: fd.min_trust, min_sources: fd.min_sources, region: settings.region,
+  };
   const filters: Filters = {
-    q: params.get("q") ?? DEFAULT_FILTERS.q,
-    sort: params.get("sort") ?? DEFAULT_FILTERS.sort,
-    hours: Number(params.get("hours") ?? DEFAULT_FILTERS.hours),
-    lang: params.get("lang") ?? DEFAULT_FILTERS.lang,
-    country: params.get("country") ?? DEFAULT_FILTERS.country,
-    perspective: params.get("perspective") ?? DEFAULT_FILTERS.perspective,
-    min_trust: Number(params.get("min_trust") ?? DEFAULT_FILTERS.min_trust),
-    min_sources: Number(params.get("min_sources") ?? DEFAULT_FILTERS.min_sources),
+    q: params.get("q") ?? defaults.q,
+    sort: params.get("sort") ?? defaults.sort,
+    hours: Number(params.get("hours") ?? defaults.hours),
+    lang: params.get("lang") ?? defaults.lang,
+    country: params.get("country") ?? defaults.country,
+    perspective: params.get("perspective") ?? defaults.perspective,
+    min_trust: Number(params.get("min_trust") ?? defaults.min_trust),
+    min_sources: Number(params.get("min_sources") ?? defaults.min_sources),
+    region: params.get("region") ?? defaults.region,
   };
   const set = (patch: Partial<Filters>) => {
     const next = new URLSearchParams(params);
     for (const [key, value] of Object.entries(patch)) {
-      const def = DEFAULT_FILTERS[key as keyof Filters];
-      if (value === def || value === "" || value === undefined) next.delete(key);
+      const def = defaults[key as keyof Filters];
+      if (value === def || value === undefined || (value === "" && def === "")) next.delete(key);
       else next.set(key, String(value));
     }
     setParams(next, { replace: true });
   };
-  const reset = () => setParams(new URLSearchParams(), { replace: true });
+  const reset = () => {
+    const next = new URLSearchParams();
+    if (params.get("region")) next.set("region", params.get("region")!); // Region bleibt
+    setParams(next, { replace: true });
+  };
   const active = (["lang", "country", "perspective", "min_trust", "min_sources", "hours"] as const)
-    .filter((k) => filters[k] !== DEFAULT_FILTERS[k]).length;
+    .filter((k) => filters[k] !== defaults[k]).length;
   return [filters, set, reset, active];
 }
 

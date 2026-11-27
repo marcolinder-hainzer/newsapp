@@ -12,6 +12,19 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>Weitblick – Nachrichten mit Überblick</title>
+    <script>
+      // gespeichertes Aussehen sofort anwenden (kein Aufblitzen beim Start)
+      try {
+        var s = JSON.parse(localStorage.getItem("weitblick.settings.v1") || "{}"), r = document.documentElement;
+        if (s.theme === "light" || s.theme === "dark") r.setAttribute("data-theme", s.theme);
+        r.dataset.accent = s.accent || "blue";
+        r.dataset.corners = s.corners || "round";
+        r.dataset.card = s.cardStyle || "shadow";
+        r.dataset.font = s.fontScale || "m";
+        r.dataset.density = s.density || "normal";
+        if (s.lang) r.lang = s.lang;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

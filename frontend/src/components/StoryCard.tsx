@@ -1,7 +1,7 @@
 import { EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { timeAgo, flag } from "../i18n";
-import { useApp, useCategoryName } from "../settings";
+import { useApp, useCategoryName, type CardElement } from "../settings";
 import { storyTrack } from "../tracks";
 import type { StoryItem } from "../types";
 import { BiasBar } from "./BiasBar";
@@ -14,11 +14,13 @@ export function StoryCard({ story, featured = false }: { story: StoryItem; featu
   const lang = settings.lang;
   const title = story.title[lang] || story.title.de || story.title.en;
   const teaser = story.teaser[lang];
+  const show = (element: CardElement) => !settings.hiddenCardElements.includes(element);
+  const austria = story.regions?.includes("AT");
 
   return (
     <article className={`story-card${featured ? " featured" : ""}`}>
       <Link to={`/meldung/${story.id}`} className="story-link" aria-label={title} />
-      {story.image_url && (
+      {story.image_url && show("image") && (
         <div className="story-img">
           <img src={story.image_url} alt="" loading="lazy" referrerPolicy="no-referrer"
             onError={(e) => ((e.currentTarget.parentElement as HTMLElement).style.display = "none")} />
@@ -27,26 +29,27 @@ export function StoryCard({ story, featured = false }: { story: StoryItem; featu
       <div className="story-body">
         <div className="story-meta">
           <span className="chip-cat">{categoryName(story.category)}</span>
+          {austria && <span className="chip-region" title={t.austria}><span className="flag-at" aria-hidden="true" />AT</span>}
           <span className="muted">{timeAgo(story.last_updated, t)}</span>
           {story.countries.length > 0 && (
             <span className="flags" aria-hidden="true">{story.countries.slice(0, 4).map(flag).join(" ")}</span>
           )}
         </div>
         <h3 className="story-title" lang={story.title_is_original[lang] ? story.headline_lang ?? undefined : lang}>{title}</h3>
-        {teaser && <p className="story-teaser">{teaser}</p>}
+        {teaser && show("teaser") && <p className="story-teaser">{teaser}</p>}
         {story.blindspot && (
           <p className="blindspot"><EyeOff size={14} aria-hidden="true" /> {story.blindspot === "left" ? t.blindspotLeft : t.blindspotRight}</p>
         )}
         <div className="story-footer">
           <div className="story-coverage">
-            <BiasBar bias={story.bias} />
+            {show("bias") && <BiasBar bias={story.bias} />}
             <span className="muted small">
               {t.sources(story.source_count)}
-              {story.top_sources.length > 0 && ` · ${story.top_sources.slice(0, 2).map((s) => s.name).join(", ")}`}
+              {show("sources") && story.top_sources.length > 0 && ` · ${story.top_sources.slice(0, 2).map((s) => s.name).join(", ")}`}
             </span>
           </div>
           <div className="story-actions">
-            <TrustBadge score={story.trust.score} label={story.trust.label} />
+            {show("trust") && <TrustBadge score={story.trust.score} label={story.trust.label} />}
             <ListenButton variant="icon" trackKey={`story-${story.id}-${lang}`} tracks={() => [storyTrack(story, lang)]} />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { staticApi } from "./staticApi";
-import type { Digest, Meta, Source, StoryDetail, StoryList } from "./types";
+import type { Briefing, Digest, Meta, Source, StoryDetail, StoryList } from "./types";
 
 /** true, wenn die App als statische Seite (GitHub Pages) gebaut wurde */
 export const IS_STATIC = import.meta.env.VITE_STATIC === "1";
@@ -37,6 +37,8 @@ export interface StoryQuery {
   sort?: string;
   limit?: number;
   offset?: number;
+  region?: string;
+  exclude_sources?: string;
 }
 
 function qs(params: object): string {
@@ -53,7 +55,7 @@ const serverApi = {
   stories: (query: StoryQuery) => request<StoryList>(`/api/stories${qs(query)}`),
   story: (id: number | string) => request<StoryDetail>(`/api/stories/${id}`),
   digest: (scope: string) => request<Digest>(`/api/digest${qs({ scope })}`),
-  briefing: () => request<{ day: Digest; week: Digest; categories: Digest[] }>("/api/briefing"),
+  briefing: () => request<Briefing>("/api/briefing"),
   sources: () => request<{ items: Source[] }>("/api/sources"),
 };
 

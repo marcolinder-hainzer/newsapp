@@ -62,9 +62,10 @@ def sync_sources(db: Database, path: Path) -> list[dict]:
             for f in s.get("feeds", []):
                 feed_urls.append(f["url"])
                 conn.execute(
-                    """INSERT INTO feeds(url, source_id, category) VALUES(?,?,?)
-                       ON CONFLICT(url) DO UPDATE SET source_id=excluded.source_id, category=excluded.category""",
-                    (f["url"], s["id"], f.get("category")),
+                    """INSERT INTO feeds(url, source_id, category, region) VALUES(?,?,?,?)
+                       ON CONFLICT(url) DO UPDATE SET source_id=excluded.source_id, category=excluded.category,
+                         region=excluded.region""",
+                    (f["url"], s["id"], f.get("category"), f.get("region")),
                 )
         if feed_urls:
             placeholders = ",".join("?" * len(feed_urls))

@@ -82,6 +82,12 @@ FEED_ITEMS: dict[str, list[dict]] = {
          "desc": "Der FC Musterstadt gewinnt das Pokalfinale gegen Beispielhausen mit 2:1. Das entscheidende Tor fiel in der Nachspielzeit.",
          "ago": 25},
     ],
+    "orfat": [
+        {"title": "Nationalrat beschließt Budget – ÖVP und SPÖ verteidigen Sparpaket",
+         "link": "https://test.orf.example/stories/3400001/",
+         "desc": "Der Nationalrat hat das Budget für das kommende Jahr beschlossen. Die FPÖ kritisierte das Sparpaket scharf.",
+         "ago": 35},
+    ],
     "boulevard": [
         {"title": "SCHOCK-Sturm Elara! Portugal versinkt im Chaos",
          "link": "https://test.boulevard.example/news/sturm-elara-schock",
@@ -105,6 +111,8 @@ SOURCES = [
      "reliability": 88, "ownership": "private", "type": "specialist", "feeds": [{"url": "https://feeds.test/heise.xml", "category": "technologie"}]},
     {"id": "kicker", "name": "Sportblatt (fiktiv)", "country": "DE", "language": "de", "bias": "center",
      "reliability": 82, "ownership": "private", "type": "specialist", "feeds": [{"url": "https://feeds.test/kicker.xml", "category": "sport"}]},
+    {"id": "orfat", "name": "Rundfunk Österreich (fiktiv)", "country": "AT", "language": "de", "bias": "center",
+     "reliability": 88, "ownership": "public", "type": "broadcaster", "feeds": [{"url": "https://feeds.test/orfat.xml", "category": None}]},
     {"id": "boulevard", "name": "Blitz-Boulevard (fiktiv)", "country": "DE", "language": "de", "bias": "right",
      "reliability": 45, "ownership": "private", "type": "tabloid", "feeds": [{"url": "https://feeds.test/boulevard.xml", "category": None}]},
 ]

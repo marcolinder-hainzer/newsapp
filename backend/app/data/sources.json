@@ -500,6 +500,55 @@
         {
           "url": "https://rss.orf.at/news.xml",
           "category": null
+        },
+        {
+          "url": "https://rss.orf.at/wien.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/noe.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/burgenland.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/ooe.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/salzburg.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/steiermark.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/kaernten.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/tirol.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/vorarlberg.xml",
+          "category": null,
+          "region": "AT"
+        },
+        {
+          "url": "https://rss.orf.at/sport.xml",
+          "category": "sport"
         }
       ]
     },
@@ -518,6 +567,35 @@
         {
           "url": "https://www.derstandard.at/rss",
           "category": null
+        },
+        {
+          "url": "https://www.derstandard.at/rss/inland",
+          "category": "politik",
+          "region": "AT"
+        },
+        {
+          "url": "https://www.derstandard.at/rss/international",
+          "category": "international"
+        },
+        {
+          "url": "https://www.derstandard.at/rss/wirtschaft",
+          "category": "wirtschaft"
+        },
+        {
+          "url": "https://www.derstandard.at/rss/web",
+          "category": "technologie"
+        },
+        {
+          "url": "https://www.derstandard.at/rss/wissenschaft",
+          "category": "wissenschaft"
+        },
+        {
+          "url": "https://www.derstandard.at/rss/sport",
+          "category": "sport"
+        },
+        {
+          "url": "https://www.derstandard.at/rss/kultur",
+          "category": "kultur"
         }
       ]
     },
@@ -535,6 +613,168 @@
       "feeds": [
         {
           "url": "https://www.diepresse.com/rss/",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "kurier",
+      "name": "KURIER",
+      "homepage": "https://kurier.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "center",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://kurier.at/xml/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "sn",
+      "name": "Salzburger Nachrichten",
+      "homepage": "https://www.sn.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "center",
+      "reliability": 84,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.sn.at/xml/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "kleinezeitung",
+      "name": "Kleine Zeitung",
+      "homepage": "https://www.kleinezeitung.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "center",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.kleinezeitung.at/rss/politik",
+          "category": "politik"
+        }
+      ]
+    },
+    {
+      "id": "tt",
+      "name": "Tiroler Tageszeitung",
+      "homepage": "https://www.tt.com",
+      "country": "AT",
+      "language": "de",
+      "bias": "center",
+      "reliability": 80,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.tt.com/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "wienerzeitung",
+      "name": "Wiener Zeitung",
+      "homepage": "https://www.wienerzeitung.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "center",
+      "reliability": 85,
+      "ownership": "public",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.wienerzeitung.at/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "profil",
+      "name": "profil",
+      "homepage": "https://www.profil.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "lean_left",
+      "reliability": 84,
+      "ownership": "private",
+      "type": "news",
+      "note": "",
+      "feeds": [
+        {
+          "url": "https://www.profil.at/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "krone",
+      "name": "Kronen Zeitung",
+      "homepage": "https://www.krone.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "right",
+      "reliability": 50,
+      "ownership": "private",
+      "type": "tabloid",
+      "note": "Boulevardzeitung – häufig zugespitzte Darstellung.",
+      "feeds": [
+        {
+          "url": "https://www.krone.at/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "heute",
+      "name": "Heute",
+      "homepage": "https://www.heute.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "lean_right",
+      "reliability": 48,
+      "ownership": "private",
+      "type": "tabloid",
+      "note": "Gratis-Boulevardzeitung.",
+      "feeds": [
+        {
+          "url": "https://www.heute.at/rss",
+          "category": null
+        }
+      ]
+    },
+    {
+      "id": "exxpress",
+      "name": "exxpress",
+      "homepage": "https://exxpress.at",
+      "country": "AT",
+      "language": "de",
+      "bias": "right",
+      "reliability": 40,
+      "ownership": "private",
+      "type": "tabloid",
+      "note": "Boulevard-Onlinemedium – häufig zugespitzte Darstellung.",
+      "feeds": [
+        {
+          "url": "https://exxpress.at/feed/",
           "category": null
         }
       ]

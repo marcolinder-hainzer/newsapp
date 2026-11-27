@@ -108,13 +108,17 @@ def create_app(settings: Settings | None = None, translator: Translator | None =
         sort: str = "relevance",
         limit: int = Query(30, ge=1, le=100),
         offset: int = Query(0, ge=0),
+        region: str | None = None,
+        exclude_sources: str | None = None,
     ):
         cats = [c for c in (category or "").split(",") if c in categories.SLUGS] or None
+        excluded = [s for s in (exclude_sources or "").split(",") if s in pipeline.sources] or None
         rows, total = stories.query_stories(
             db, categories_filter=cats, q=q, lang=lang, country=country, source=source,
             perspective=perspective if perspective in stories.PERSPECTIVES else "all",
             min_trust=min_trust, min_sources=min_sources, hours=hours or None,
             sort=sort if sort in stories.SORTS else "relevance", limit=limit, offset=offset,
+            region=region if region in ("AT", "at") else None, exclude_sources=excluded,
         )
         return {"total": total, "offset": offset, "limit": limit,
                 "items": stories.serialize_many(db, rows, pipeline.sources)}
@@ -140,6 +144,7 @@ def create_app(settings: Settings | None = None, translator: Translator | None =
         return {
             "day": _digest_or_404("top:day"),
             "week": _digest_or_404("top:week"),
+            "austria": _digest_or_404("region:AT"),
             "categories": [_digest_or_404(f"category:{c}") for c in categories.SLUGS],
         }
 

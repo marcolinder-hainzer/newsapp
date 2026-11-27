@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from . import categories
 from .db import Database, dumps, iso, loads, parse_iso, utcnow
+from .regions import story_regions
 from .sources import BIAS_BUCKET, factuality
 from .textutil import split_sentences
 from .trust import compute_trust, trust_label
@@ -45,7 +46,8 @@ def recompute_stories(db: Database, sources: dict[str, dict], story_ids: set[int
         placeholders = ",".join("?" * len(ids))
         article_rows = conn.execute(
             f"""SELECT id, story_id, source_id, title, description, image_url, language, category,
-                       category_conf, is_opinion, published_at FROM articles WHERE story_id IN ({placeholders})""",
+                       category_conf, is_opinion, published_at, region FROM articles
+                WHERE story_id IN ({placeholders})""",
             ids,
         ).fetchall()
 
@@ -79,14 +81,15 @@ def recompute_stories(db: Database, sources: dict[str, dict], story_ids: set[int
         coverage = coverage_score(len(source_ids), len(arts), len(countries), len(bias))
         updates.append((
             category, headline_article["title"], headline_article["language"], image, published[0], published[-1],
-            len(arts), len(source_ids), dumps(languages), dumps(countries), bias.get("left", 0),
-            bias.get("center", 0), bias.get("right", 0), trust["score"], dumps(trust), coverage, story["id"],
+            len(arts), len(source_ids), dumps(languages), dumps(countries), dumps(story_regions(arts, sources)),
+            bias.get("left", 0), bias.get("center", 0), bias.get("right", 0), trust["score"], dumps(trust),
+            coverage, story["id"],
         ))
 
     with db.write() as conn:
         conn.executemany(
             """UPDATE stories SET category=?, headline=?, headline_lang=?, image_url=?, first_seen=?, last_updated=?,
-                   article_count=?, source_count=?, languages=?, countries=?, bias_left=?, bias_center=?,
+                   article_count=?, source_count=?, languages=?, countries=?, regions=?, bias_left=?, bias_center=?,
                    bias_right=?, trust_score=?, trust_json=?, coverage=?, dirty=0 WHERE id=?""",
             updates,
         )
@@ -158,6 +161,7 @@ def serialize_story(story: dict, sources: dict[str, dict], top_sources: list[str
         "source_count": story.get("source_count") or 0,
         "languages": loads(story.get("languages"), []),
         "countries": loads(story.get("countries"), []),
+        "regions": loads(story.get("regions"), []),
         "bias": {"left": story.get("bias_left") or 0, "center": story.get("bias_center") or 0,
                  "right": story.get("bias_right") or 0},
         "blindspot": blindspot(story),
@@ -206,7 +210,8 @@ SORTS = {"relevance", "latest", "sources", "trust"}
 def query_stories(db: Database, *, categories_filter: list[str] | None = None, q: str | None = None,
                   lang: str | None = None, country: str | None = None, source: str | None = None,
                   perspective: str = "all", min_trust: int = 0, min_sources: int = 1, hours: int | None = 48,
-                  sort: str = "relevance", limit: int = 30, offset: int = 0) -> tuple[list[dict], int]:
+                  sort: str = "relevance", limit: int = 30, offset: int = 0, region: str | None = None,
+                  exclude_sources: list[str] | None = None) -> tuple[list[dict], int]:
     now = utcnow()
     where = ["source_count >= ?"]
     params: list = [max(1, min_sources)]
@@ -228,6 +233,14 @@ def query_stories(db: Database, *, categories_filter: list[str] | None = None, q
     if source:
         where.append("id IN (SELECT story_id FROM articles WHERE source_id = ?)")
         params.append(source)
+    if region:
+        where.append("regions LIKE ?")
+        params.append(f'%"{region.upper()}"%')
+    if exclude_sources:
+        # Meldungen ausblenden, über die ausschließlich ausgeblendete Medien berichten
+        marks = ",".join("?" * len(exclude_sources))
+        where.append(f"id IN (SELECT story_id FROM articles WHERE source_id NOT IN ({marks}))")
+        params.extend(exclude_sources)
     if q:
         for term in q.split()[:6]:
             like = f"%{term}%"

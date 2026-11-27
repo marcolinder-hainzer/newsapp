@@ -1,6 +1,6 @@
 // Minimaler Service Worker: App-Hülle offline verfügbar, Daten immer frisch aus dem Netz.
 // Funktioniert unter "/" (eigener Server) ebenso wie unter "/<repo>/" (GitHub Pages).
-const CACHE = "weitblick-v3";
+const CACHE = "weitblick-v4";
 const BASE = new URL("./", self.location).pathname;
 const SHELL = [BASE, `${BASE}manifest.webmanifest`, `${BASE}icon.svg`];
 

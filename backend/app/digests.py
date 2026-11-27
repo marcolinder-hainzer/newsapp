@@ -24,7 +24,7 @@ SCOPE_SETTINGS = {
 
 
 def all_scopes() -> list[str]:
-    return ["top:day", "top:week"] + [f"category:{slug}" for slug in categories.SLUGS]
+    return ["top:day", "top:week", "region:AT"] + [f"category:{slug}" for slug in categories.SLUGS]
 
 
 def scope_title(scope: str, lang: str) -> str:
@@ -32,6 +32,8 @@ def scope_title(scope: str, lang: str) -> str:
         return "Top-Meldungen des Tages" if lang == "de" else "Top stories of the day"
     if scope == "top:week":
         return "Top-Meldungen der Woche" if lang == "de" else "Top stories of the week"
+    if scope == "region:AT":
+        return "Das Wichtigste aus Österreich" if lang == "de" else "Top stories from Austria"
     slug = scope.split(":", 1)[1]
     name = categories.label(slug, lang)
     return f"Das Wichtigste: {name}" if lang == "de" else f"Key developments: {name}"
@@ -48,13 +50,17 @@ def select_stories(db: Database, scope: str) -> list[dict]:
         rows.sort(key=lambda r: importance(r, now, cfg["half_life"]), reverse=True)
         return rows[: cfg["limit"]]
 
-    slug = scope.split(":", 1)[1]
+    kind, value = scope.split(":", 1)
+    if kind == "region":
+        condition, param = "regions LIKE ?", f'%"{value}"%'
+    else:
+        condition, param = "category = ?", value
     rows: list[dict] = []
     for hours in (24, 72):
         with db.connect() as conn:
             rows = [dict(r) for r in conn.execute(
-                "SELECT * FROM stories WHERE category = ? AND last_updated >= ?",
-                (slug, iso(now - timedelta(hours=hours))),
+                f"SELECT * FROM stories WHERE {condition} AND last_updated >= ?",
+                (param, iso(now - timedelta(hours=hours))),
             ).fetchall()]
         if len(rows) >= 4:
             break
@@ -101,6 +107,9 @@ def build_digest(scope: str, stories: list[dict]) -> dict:
         elif scope == "top:week":
             overview = (f"Die meistbeachteten Themen der vergangenen sieben Tage: {_join(top, lang)}."
                         if lang == "de" else f"The most widely covered stories of the past seven days: {_join(top, lang)}.")
+        elif scope == "region:AT":
+            overview = (f"In Österreich berichten derzeit die meisten Medien über {_join(top, lang)}."
+                        if lang == "de" else f"Most widely covered in Austria right now: {_join(top, lang)}.")
         else:
             name = categories.label(scope.split(":", 1)[1], lang)
             overview = (f"In der Kategorie {name} berichten derzeit die meisten Medien über {_join(top, lang)}."

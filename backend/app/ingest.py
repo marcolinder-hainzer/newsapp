@@ -64,7 +64,7 @@ def _entry_image(entry) -> str | None:
 
 
 def parse_entries(raw: bytes, source: dict, feed_category: str | None, now: datetime,
-                  max_age_hours: int) -> list[dict]:
+                  max_age_hours: int, region: str | None = None) -> list[dict]:
     parsed = feedparser.parse(raw)
     articles = []
     oldest = now - timedelta(hours=max_age_hours)
@@ -111,6 +111,7 @@ def parse_entries(raw: bytes, source: dict, feed_category: str | None, now: date
             "category_conf": conf,
             "is_opinion": int(looks_like_opinion(title, url)),
             "published_at": iso(published),
+            "region": region,
         })
     return articles
 
@@ -134,11 +135,11 @@ def store_articles(db: Database, articles: list[dict], now: datetime) -> int:
                 continue
             conn.execute(
                 """INSERT INTO articles(source_id, url, title, description, content, image_url, language, category,
-                       category_conf, is_opinion, published_at, fetched_at, content_fetched)
-                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                       category_conf, is_opinion, published_at, fetched_at, content_fetched, region)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (a["source_id"], a["url"], a["title"], a["description"], a["content"], a["image_url"],
                  a["language"], a["category"], a["category_conf"], a["is_opinion"], a["published_at"],
-                 iso(now), 1 if a["content"] else 0),
+                 iso(now), 1 if a["content"] else 0, a.get("region")),
             )
             new_count += 1
     return new_count
@@ -162,7 +163,8 @@ def fetch_feed(client: httpx.Client, feed: dict, source: dict, now: datetime, ma
         response.raise_for_status()
         result["etag"] = response.headers.get("ETag")
         result["last_modified"] = response.headers.get("Last-Modified")
-        result["articles"] = parse_entries(response.content, source, feed.get("category"), now, max_age_hours)
+        result["articles"] = parse_entries(response.content, source, feed.get("category"), now, max_age_hours,
+                                           feed.get("region"))
         if not result["articles"] and b"<" not in response.content[:200]:
             result["status"] = "error"
             result["error"] = "Antwort ist kein Feed"

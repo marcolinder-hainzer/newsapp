@@ -1,12 +1,9 @@
 import { Settings as SettingsIcon } from "lucide-react";
-import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useApp } from "../settings";
-import { SettingsDialog } from "./SettingsDialog";
 
 export function Header() {
   const { t, settings, update } = useApp();
-  const [open, setOpen] = useState(false);
   return (
     <header className="app-header">
       <div className="header-inner">
@@ -29,12 +26,11 @@ export function Header() {
                 onClick={() => update({ lang: l })}>{l.toUpperCase()}</button>
             ))}
           </div>
-          <button className="icon-btn" onClick={() => setOpen(true)} aria-label={t.settings} title={t.settings}>
+          <NavLink to="/einstellungen" className="icon-btn" aria-label={t.settings} title={t.settings}>
             <SettingsIcon size={19} />
-          </button>
+          </NavLink>
         </div>
       </div>
-      {open && <SettingsDialog onClose={() => setOpen(false)} />}
     </header>
   );
 }

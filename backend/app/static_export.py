@@ -102,6 +102,7 @@ def export(db: Database, sources: dict[str, dict], translation_info: dict, setti
     _write(out / "briefing.json", {
         "day": all_digests["top:day"],
         "week": all_digests["top:week"],
+        "austria": all_digests["region:AT"],
         "categories": [d for s, d in all_digests.items() if s.startswith("category:")],
     })
 
@@ -133,7 +134,7 @@ def run_report(db: Database, result: dict, translator: Translator, stats: dict) 
     since = iso(utcnow() - timedelta(hours=RECENT_HOURS))
     with db.connect() as conn:
         rows = [dict(r) for r in conn.execute(
-            "SELECT summary_json, source_count, coverage, trust_score, first_seen, last_updated FROM stories "
+            "SELECT summary_json, regions, source_count, coverage, trust_score, first_seen, last_updated FROM stories "
             "WHERE last_updated >= ?", (since,)).fetchall()]
     both = pending = 0
     samples: dict[str, list[tuple[float, str, str]]] = {"de": [], "en": []}
@@ -155,6 +156,7 @@ def run_report(db: Database, result: dict, translator: Translator, stats: dict) 
         f"Zusammengeführte Meldungen: {result.get('merged')}",
         f"Export: {stats}",
         f"Meldungen (48 Std.): {len(rows)}, davon zweisprachig: {both}, Übersetzung ausstehend: {pending}",
+        f"Österreich-Themen (48 Std.): {sum(1 for r in rows if 'AT' in json.loads(r.get('regions') or '[]'))}",
         f"Übersetzung: {'aktiv' if translator.available else 'nicht verfügbar'}"
         + (f" – Modelle: {', '.join(translator.loaded_models())}" if hasattr(translator, "loaded_models") else ""),
     ]
@@ -163,6 +165,12 @@ def run_report(db: Database, result: dict, translator: Translator, stats: dict) 
         if top:
             lines.append(f"Beispiele {label}:")
             lines.extend(f"  • {src}  →  {dst}" for _, src, dst in top)
+    with db.connect() as conn:
+        failed = [f"{r['source_id']}: {r['url']} ({r['last_error']})" for r in conn.execute(
+            "SELECT source_id, url, last_error FROM feeds WHERE last_status = 'error' ORDER BY source_id")]
+    if failed:
+        lines.append(f"Fehlgeschlagene Feeds ({len(failed)}):")
+        lines.extend(f"  • {f}" for f in failed)
     if result.get("error"):
         lines.append(f"FEHLER im Durchlauf: {result['error']}")
     return "\n".join(lines)

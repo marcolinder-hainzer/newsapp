@@ -3,7 +3,7 @@
  * Filter, Suche und Sortierung laufen direkt im Browser (gleiche Logik wie im Backend).
  */
 import type { StoryQuery } from "./api";
-import type { Digest, Meta, Source, StoryDetail, StoryItem, StoryList } from "./types";
+import type { Briefing, Digest, Meta, Source, StoryDetail, StoryItem, StoryList } from "./types";
 
 export interface StaticStory extends StoryItem {
   coverage: number;
@@ -50,6 +50,7 @@ export function queryStories(all: StaticStory[], query: StoryQuery, now = Date.n
   const hours = query.hours ?? 48;
   const categories = (query.category ?? "").split(",").filter(Boolean);
   const terms = (query.q ?? "").toLowerCase().split(/\s+/).filter(Boolean).slice(0, 6);
+  const excluded = (query.exclude_sources ?? "").split(",").filter(Boolean);
 
   let items = all.filter((s) => {
     if (s.source_count < minSources) return false;
@@ -59,6 +60,8 @@ export function queryStories(all: StaticStory[], query: StoryQuery, now = Date.n
     if ((query.lang === "de" || query.lang === "en") && !s.languages.includes(query.lang)) return false;
     if (query.country && !s.countries.includes(query.country.toUpperCase())) return false;
     if (query.source && !s.source_ids.includes(query.source)) return false;
+    if (query.region && !(s.regions ?? []).includes(query.region.toUpperCase())) return false;
+    if (excluded.length && s.source_ids.every((id) => excluded.includes(id))) return false;
     if (terms.length) {
       const haystack = `${s.title.de} ${s.title.en} ${s.teaser.de} ${s.teaser.en} ${s.search}`.toLowerCase();
       if (!terms.every((t) => haystack.includes(t))) return false;
@@ -102,6 +105,6 @@ export const staticApi = {
   },
   story: (id: number | string) => getJson<StoryDetail>(`stories/${id}.json`),
   digest: (scope: string) => getJson<Digest>(`digests/${scope.replace(":", "-")}.json`),
-  briefing: () => getJson<{ day: Digest; week: Digest; categories: Digest[] }>("briefing.json"),
+  briefing: () => getJson<Briefing>("briefing.json"),
   sources: () => getJson<{ items: Source[] }>("sources.json"),
 };

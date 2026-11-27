@@ -37,7 +37,7 @@ def test_export_writes_all_files(test_settings, feed_transport, tmp_path):
         assert digest["speech"]["de"]
     briefing = json.loads((out / "briefing.json").read_text())
     assert len(briefing["categories"]) == 10
-    assert len(json.loads((out / "sources.json").read_text())["items"]) == 8
+    assert len(json.loads((out / "sources.json").read_text())["items"]) == 9
 
     # Datenbank für den Zwischenspeicher verkleinern: Volltexte weg, Meldungen bleiben
     with db.write() as conn:

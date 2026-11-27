@@ -38,6 +38,7 @@ export interface StoryItem {
   source_count: number;
   languages: Lang[];
   countries: string[];
+  regions?: string[];
   bias: { left: number; center: number; right: number };
   blindspot: "left" | "right" | null;
   trust: { score: number; label: TrustLabel };
@@ -129,4 +130,11 @@ export interface StoryList {
   offset: number;
   limit: number;
   items: StoryItem[];
+}
+
+export interface Briefing {
+  day: Digest;
+  week: Digest;
+  austria?: Digest;
+  categories: Digest[];
 }

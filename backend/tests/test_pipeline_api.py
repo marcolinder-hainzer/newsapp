@@ -103,7 +103,7 @@ def test_digests_and_meta(test_settings, feed_transport):
     meta = client.get("/api/meta").json()
     assert meta["translation"]["enabled"] is False
     assert "llm" not in meta and "tts" not in meta
-    assert meta["stats"]["sources"] == 8
+    assert meta["stats"]["sources"] == 9
     assert meta["last_update"]
 
     sources = client.get("/api/sources").json()["items"]
